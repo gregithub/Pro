@@ -6,8 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "ProMainMenu.generated.h"
 
+class UCanvasPanel;
 class UBorder;
 class UButton;
+//class UVerticalBox;
 class UProMainMenuButton;
 
 UCLASS()
@@ -17,10 +19,10 @@ class PROCEDURAL_API UProMainMenu : public UUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
-	UBorder* MainBorder = nullptr;
+	UCanvasPanel* MainCanvas = nullptr;
 	
-	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
-	UBorder* ButtonsBorder = nullptr;
+	//UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
+	//UVerticalBox* ButtonsVerticalBox = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
 	UProMainMenuButton* PlayButton = nullptr;
