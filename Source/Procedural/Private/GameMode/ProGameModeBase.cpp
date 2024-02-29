@@ -23,7 +23,15 @@ void AProGameModeBase::InitGameState()
 
 bool AProGameModeBase::RequestGenerateWorld()
 {
-	
+	if (WorldGenerationComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("WorldGenerationComponent is invalid!"));
+		return false;
+	}
 
-	return false;
+	FGeneratedWorldTerrainSettings GeneratedWorldTerrainSettings = FGeneratedWorldTerrainSettings();
+
+	WorldGenerationComponent->RequestTerrainGeneration(GeneratedWorldTerrainSettings);
+
+	return true;
 }

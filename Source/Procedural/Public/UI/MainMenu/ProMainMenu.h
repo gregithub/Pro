@@ -46,4 +46,7 @@ protected:
 	UFUNCTION()
 	void OnPlayButtonClicked();
 
+	UFUNCTION()
+	void OnGenerateButtonClicked();
+
 };

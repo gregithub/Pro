@@ -3,6 +3,7 @@
 
 #include "UI/MainMenu/ProMainMenu.h"
 #include "UI/MainMenu/Components/ProMainMenuButton.h"
+#include "GameMode/ProGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 
 UProMainMenu::UProMainMenu(const FObjectInitializer& ObjectInitializer)
@@ -25,6 +26,7 @@ void UProMainMenu::NativeOnInitialized()
 	if (PlayButton != nullptr)
 	{
 		PlayButton->OnClicked.AddDynamic(this, &UProMainMenu::OnPlayButtonClicked);
+		GenerateButton->OnClicked.AddDynamic(this, &UProMainMenu::OnGenerateButtonClicked);
 	}
 	else
 	{
@@ -43,4 +45,16 @@ void UProMainMenu::OnPlayButtonClicked()
 	const FName LevelToLoadName = FName(LevelToLoad_OnPlayButton.GetAssetName());
 
 	UGameplayStatics::OpenLevel(GetWorld(), LevelToLoadName);
+}
+
+void UProMainMenu::OnGenerateButtonClicked()
+{
+	if (AProGameModeBase* ProGameModeBase = Cast<AProGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		ProGameModeBase->RequestGenerateWorld();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("ProGameModeBase fetch failed!"));
+	}
 }
