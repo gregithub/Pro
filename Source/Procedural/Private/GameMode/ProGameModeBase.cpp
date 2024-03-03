@@ -29,9 +29,7 @@ bool AProGameModeBase::RequestGenerateWorld()
 		return false;
 	}
 
-	FGeneratedWorldTerrainSettings GeneratedWorldTerrainSettings = FGeneratedWorldTerrainSettings();
-
-	WorldGenerationComponent->RequestTerrainGeneration(GeneratedWorldTerrainSettings);
+	WorldGenerationComponent->RequestTerrainGeneration();
 
 	return true;
 }

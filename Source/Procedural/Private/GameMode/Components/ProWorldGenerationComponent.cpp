@@ -2,11 +2,14 @@
 
 
 #include "GameMode/Components/ProWorldGenerationComponent.h"
-#include "GameMode/Components/Subcomponents/ProWorldGenerationSubomponentBase.h"
+#include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
+
 
 UProWorldGenerationComponent::UProWorldGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+	TerrainGenerationSubcomponent = NewObject<UProTerrainGenerationSubcomponent>();
 }
 
 void UProWorldGenerationComponent::BeginPlay()
@@ -19,22 +22,7 @@ void UProWorldGenerationComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UProWorldGenerationComponent::RequestTerrainGeneration(const FGeneratedWorldTerrainSettings& InWorldSettings)
+void UProWorldGenerationComponent::RequestTerrainGeneration()
 {
-	if (InWorldSettings.IsValid() == false)
-	{
-		return;
-	}
-
-	TArray<TArray<int32>> GeneratedNoiseMap = TArray<TArray<int32>>();
-
-	for (int32 CurrentX = 0; CurrentX <= InWorldSettings.GridSize.X; CurrentX++)
-	{
-		for (int32 CurrentY = 0; CurrentY <= InWorldSettings.GridSize.Y; CurrentY++)
-		{
-			GeneratedNoiseMap[CurrentX][CurrentY] = FMath::RandRange(0, 255);
-		}
-	}
-
-	return;
+	TerrainGenerationSubcomponent->RequestTerrainGeneration();
 }
