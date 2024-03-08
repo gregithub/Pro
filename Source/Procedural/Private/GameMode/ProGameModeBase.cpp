@@ -2,23 +2,27 @@
 
 
 #include "GameMode/ProGameModeBase.h"
+#include "ProceduralMeshComponent.h"
+#include "ProceduralMeshComponent.h"
+#include "GameMode/Components/ProWorldGenerationComponent.h"
 
 AProGameModeBase::AProGameModeBase()
 {
 	WorldGenerationComponent = CreateDefaultSubobject<UProWorldGenerationComponent>(TEXT("ProWorldGenerationComponent"));
 	
+	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
 }
 
 void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) 
 {
 	Super::InitGame(MapName, Options, ErrorMessage);
-
-
 }
 
 void AProGameModeBase::InitGameState()
 {
 	Super::InitGameState();
+
+	WorldGenerationComponent->Initialize(this);
 }
 
 bool AProGameModeBase::RequestGenerateWorld()

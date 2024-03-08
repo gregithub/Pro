@@ -2,6 +2,8 @@
 
 
 #include "GameMode/Components/ProWorldGenerationComponent.h"
+#include "ProceduralMeshComponent.h"
+#include "GameMode/ProGameModeBase.h"
 #include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
 
 
@@ -10,6 +12,18 @@ UProWorldGenerationComponent::UProWorldGenerationComponent(const FObjectInitiali
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TerrainGenerationSubcomponent = NewObject<UProTerrainGenerationSubcomponent>();
+}
+
+void UProWorldGenerationComponent::Initialize(AProGameModeBase* InProGameModeBase)
+{
+	if (InProGameModeBase != nullptr)
+	{
+		OwnerGameModeBase = InProGameModeBase;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("InProGameModeBase is invalid!"));
+	}
 }
 
 void UProWorldGenerationComponent::BeginPlay()
@@ -24,5 +38,20 @@ void UProWorldGenerationComponent::TickComponent(float DeltaTime, ELevelTick Tic
 
 void UProWorldGenerationComponent::RequestTerrainGeneration()
 {
-	TerrainGenerationSubcomponent->RequestTerrainGeneration();
+	if (UProceduralMeshComponent* ProceduralMeshComponent = OwnerGameModeBase->GetProceduralMeshComponent())
+	{
+		FGeneratedWorldTerrainSettings GeneratedWorldSettings = TerrainGenerationSubcomponent->RequestTerrainGeneration();
+
+		ProceduralMeshComponent->CreateMeshSection(
+			0,
+			GeneratedWorldSettings.Vertices,
+			GeneratedWorldSettings.Triangles,
+			GeneratedWorldSettings.Normals,
+			GeneratedWorldSettings.UVO,
+			TArray<FColor>(), 
+			TArray<FProcMeshTangent>(), 
+			true);
+	}
+
+	return;
 }

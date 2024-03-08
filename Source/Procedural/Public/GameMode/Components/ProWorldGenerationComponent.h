@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ProWorldGenerationComponent.generated.h"
 
+class AProGameModeBase;
 class UProTerrainGenerationSubcomponent;
 
 UCLASS(BlueprintType, ClassGroup = (Pro), meta = (BlueprintSpawnableComponent))
@@ -18,12 +19,16 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void Initialize(AProGameModeBase* InProGameModeBase);
 public:
 	void RequestTerrainGeneration();
 
 	UProTerrainGenerationSubcomponent* GetTerrainGenerationSubcomponent() const { ensure(TerrainGenerationSubcomponent); return TerrainGenerationSubcomponent; };
 
 protected:
-	
 	UProTerrainGenerationSubcomponent* TerrainGenerationSubcomponent = nullptr;
+	
+
+protected:
+	AProGameModeBase* OwnerGameModeBase = nullptr;
 };

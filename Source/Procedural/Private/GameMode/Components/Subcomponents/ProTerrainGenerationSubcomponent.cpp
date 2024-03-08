@@ -3,20 +3,13 @@
 
 #include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
 #include "LandscapeComponent.h"
+#include "Math.h"
 #include "ProceduralMeshComponent.h"
 
 
-void UProTerrainGenerationSubcomponent::RequestTerrainGeneration()
+FGeneratedWorldTerrainSettings UProTerrainGenerationSubcomponent::RequestTerrainGeneration()
 {
 	FGeneratedWorldTerrainSettings WorldSettings;
-
-	if (WorldSettings.IsValid() == false)
-	{
-		return;
-	}
-
-	TArray<FVector> Vertices;
-	TArray<int32> Triangles;
 
 	const float LocalWorldScale = WorldSettings.WorldScale;
 
@@ -24,11 +17,26 @@ void UProTerrainGenerationSubcomponent::RequestTerrainGeneration()
 	{
 		for (int32 CurrentColumn = 0; CurrentColumn <= WorldSettings.GridSize.Y; CurrentColumn++)
 		{
-			float X = CurrentRow * LocalWorldScale;
-			float Y = CurrentColumn * LocalWorldScale;
-			float Z = FMath::PerlinNoise2D(FVector2D(X, Y)) * 100.0f;
+			float NoiseValue = FMath::PerlinNoise2D(FVector2D(CurrentRow * 0.1f, CurrentColumn * 0.1f));
+			float Height = NoiseValue * 100.0f;
+
+			WorldSettings.Vertices.Add(FVector(CurrentRow * WorldSettings.CellsSize, CurrentColumn * WorldSettings.CellsSize, Height));
+			WorldSettings.Normals.Add(FVector(0, 0, 1));
+			WorldSettings.UVO.Add(FVector2D(CurrentRow, CurrentColumn));
+
+			if ((CurrentRow < (WorldSettings.GridSize.X - 1)) && (CurrentColumn < (WorldSettings.GridSize.Y - 1)))
+			{
+				int32 CurrentIndex = CurrentRow + (CurrentColumn * WorldSettings.GridSize.X);
+				WorldSettings.Triangles.Add(CurrentIndex);
+				WorldSettings.Triangles.Add(CurrentIndex + WorldSettings.GridSize.X);
+				WorldSettings.Triangles.Add(CurrentIndex + 1);
+
+				WorldSettings.Triangles.Add(CurrentIndex + WorldSettings.GridSize.X);
+				WorldSettings.Triangles.Add(CurrentIndex + WorldSettings.GridSize.X + 1);
+				WorldSettings.Triangles.Add(CurrentIndex + 1);
+			}
 		}
 	}
 
-	return;
+	return WorldSettings;
 }

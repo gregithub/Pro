@@ -38,15 +38,33 @@ struct FGeneratedWorldTerrainSettings
 	UPROPERTY()
 	float WorldScale;
 
+	UPROPERTY()
+	float CellsSize = 100.0f;
+
+	UPROPERTY()
+	TArray<FVector> Vertices;
+	UPROPERTY()
+	TArray<int32> Triangles;
+	UPROPERTY()
+	TArray<FVector> Normals;
+	UPROPERTY()
+	TArray<FVector2D> UVO;
+
 	FGeneratedWorldTerrainSettings()
 	{
 		GridSize = FGridSize(10, 10);
 		WorldScale = 1.0f;
+
+		Vertices = TArray<FVector>();
+		Triangles = TArray<int32>();
+		Normals = TArray<FVector>();
+		UVO = TArray<FVector2D>();
 	}
 
 public:
 	bool IsValid() const { return true; };
 };
+
 
 UCLASS()
 class PROCEDURAL_API UProTerrainGenerationSubcomponent : public UProWorldGenerationSubcomponentBase
@@ -55,5 +73,5 @@ class PROCEDURAL_API UProTerrainGenerationSubcomponent : public UProWorldGenerat
 	
 public:
 
-	void RequestTerrainGeneration();
+	FGeneratedWorldTerrainSettings RequestTerrainGeneration();
 };
