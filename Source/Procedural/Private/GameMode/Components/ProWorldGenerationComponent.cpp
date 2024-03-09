@@ -3,8 +3,9 @@
 
 #include "GameMode/Components/ProWorldGenerationComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "GameInstance/ProGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameMode/ProGameModeBase.h"
-#include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
 
 
 UProWorldGenerationComponent::UProWorldGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -12,18 +13,6 @@ UProWorldGenerationComponent::UProWorldGenerationComponent(const FObjectInitiali
 	PrimaryComponentTick.bCanEverTick = true;
 
 	TerrainGenerationSubcomponent = NewObject<UProTerrainGenerationSubcomponent>();
-}
-
-void UProWorldGenerationComponent::Initialize(AProGameModeBase* InProGameModeBase)
-{
-	if (InProGameModeBase != nullptr)
-	{
-		OwnerGameModeBase = InProGameModeBase;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("InProGameModeBase is invalid!"));
-	}
 }
 
 void UProWorldGenerationComponent::BeginPlay()
@@ -36,22 +25,13 @@ void UProWorldGenerationComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UProWorldGenerationComponent::RequestTerrainGeneration()
+bool UProWorldGenerationComponent::WorldGeneration_RequestTerrainGeneration()
 {
-	if (UProceduralMeshComponent* ProceduralMeshComponent = OwnerGameModeBase->GetProceduralMeshComponent())
+	if (UProGameInstance* ProGameInstance = Cast<UProGameInstance>(UGameplayStatics::GetGameInstance(this)))
 	{
-		FGeneratedWorldTerrainSettings GeneratedWorldSettings = TerrainGenerationSubcomponent->RequestTerrainGeneration();
-
-		ProceduralMeshComponent->CreateMeshSection(
-			0,
-			GeneratedWorldSettings.Vertices,
-			GeneratedWorldSettings.Triangles,
-			GeneratedWorldSettings.Normals,
-			GeneratedWorldSettings.UVO,
-			TArray<FColor>(), 
-			TArray<FProcMeshTangent>(), 
-			true);
+		ProGameInstance->SetWorldTerrainSettings(TerrainGenerationSubcomponent->RequestTerrainGeneration());
+		return true;
 	}
 
-	return;
+	return false;
 }

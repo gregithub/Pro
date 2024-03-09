@@ -20,9 +20,6 @@ class PROCEDURAL_API UProMainMenu : public UUserWidget
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
 	UCanvasPanel* MainCanvas = nullptr;
-	
-	//UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
-	//UVerticalBox* ButtonsVerticalBox = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
 	UProMainMenuButton* PlayButton = nullptr;
@@ -44,9 +41,9 @@ protected:
 protected:
 	// DynamicBinds
 	UFUNCTION()
-	void OnPlayButtonClicked();
+	void OnPlayButtonReleased();
 
 	UFUNCTION()
-	void OnGenerateButtonClicked();
+	void OnGenerateButtonReleased();
 
 };

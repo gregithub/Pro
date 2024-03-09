@@ -27,27 +27,18 @@ public:
 	}
 };
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FGeneratedWorldTerrainSettings
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
 	FGridSize GridSize;
-
-	UPROPERTY()
 	float WorldScale;
-
-	UPROPERTY()
 	float CellsSize = 100.0f;
 
-	UPROPERTY()
 	TArray<FVector> Vertices;
-	UPROPERTY()
 	TArray<int32> Triangles;
-	UPROPERTY()
 	TArray<FVector> Normals;
-	UPROPERTY()
 	TArray<FVector2D> UVO;
 
 	FGeneratedWorldTerrainSettings()
@@ -59,6 +50,25 @@ struct FGeneratedWorldTerrainSettings
 		Triangles = TArray<int32>();
 		Normals = TArray<FVector>();
 		UVO = TArray<FVector2D>();
+	}
+
+	FGeneratedWorldTerrainSettings(
+		FGridSize InGridSize,
+		float InWorldScale,
+		float InCellsSize,
+		TArray<FVector> InVertices,
+		TArray<int32> InTriangles,
+		TArray<FVector> InNormals,
+		TArray<FVector2D> InUVO
+	)
+	{
+		GridSize = InGridSize;
+		WorldScale = InWorldScale;
+		CellsSize = InCellsSize;
+		Vertices = InVertices;
+		Triangles = InTriangles;
+		Normals = InNormals;
+		UVO = InUVO;
 	}
 
 public:

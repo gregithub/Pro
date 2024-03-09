@@ -25,8 +25,8 @@ void UProMainMenu::NativeOnInitialized()
 
 	if (PlayButton != nullptr)
 	{
-		PlayButton->OnClicked.AddDynamic(this, &UProMainMenu::OnPlayButtonClicked);
-		GenerateButton->OnClicked.AddDynamic(this, &UProMainMenu::OnGenerateButtonClicked);
+		PlayButton->OnReleased.AddDynamic(this, &UProMainMenu::OnPlayButtonReleased);
+		GenerateButton->OnReleased.AddDynamic(this, &UProMainMenu::OnGenerateButtonReleased);
 	}
 	else
 	{
@@ -34,7 +34,7 @@ void UProMainMenu::NativeOnInitialized()
 	}
 }
 
-void UProMainMenu::OnPlayButtonClicked()
+void UProMainMenu::OnPlayButtonReleased()
 {
 	if (LevelToLoad_OnPlayButton.IsNull())
 	{
@@ -47,7 +47,7 @@ void UProMainMenu::OnPlayButtonClicked()
 	UGameplayStatics::OpenLevel(GetWorld(), LevelToLoadName);
 }
 
-void UProMainMenu::OnGenerateButtonClicked()
+void UProMainMenu::OnGenerateButtonReleased()
 {
 	if (AProGameModeBase* ProGameModeBase = Cast<AProGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
 	{

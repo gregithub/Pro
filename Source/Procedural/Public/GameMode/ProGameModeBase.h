@@ -7,7 +7,6 @@
 #include "ProGameModeBase.generated.h"
 
 class UProWorldGenerationComponent;
-class UProceduralMeshComponent;
 
 UCLASS()
 class PROCEDURAL_API AProGameModeBase : public AGameMode
@@ -16,9 +15,6 @@ class PROCEDURAL_API AProGameModeBase : public AGameMode
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UProWorldGenerationComponent* WorldGenerationComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UProceduralMeshComponent* ProceduralMeshComponent = nullptr;	
 
 public:
 	AProGameModeBase();
@@ -30,5 +26,4 @@ public:
 public:
 	UProWorldGenerationComponent* GetProWorldGenerationComponent() { return WorldGenerationComponent; };
 
-	UProceduralMeshComponent* GetProceduralMeshComponent() { return ProceduralMeshComponent; };
 };
