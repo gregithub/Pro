@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameMode/Components/Subcomponents/ProWorldGenerationSubcomponentBase.h"
+#include "ProceduralMeshComponent.h"
 #include "ProTerrainGenerationSubcomponent.generated.h"
 
 USTRUCT(BlueprintType)
@@ -39,17 +40,19 @@ struct FGeneratedWorldTerrainSettings
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 	TArray<FVector> Normals;
-	TArray<FVector2D> UVO;
+	TArray<FVector2D> UVs;
+	TArray<FProcMeshTangent> Tangents;
 
 	FGeneratedWorldTerrainSettings()
 	{
-		GridSize = FGridSize(10, 10);
-		WorldScale = 1.0f;
+		GridSize = FGridSize(100, 100);
+		WorldScale = 10.0f;
 
 		Vertices = TArray<FVector>();
 		Triangles = TArray<int32>();
 		Normals = TArray<FVector>();
-		UVO = TArray<FVector2D>();
+		UVs = TArray<FVector2D>();
+		Tangents = TArray<FProcMeshTangent>();
 	}
 
 	FGeneratedWorldTerrainSettings(
@@ -59,7 +62,8 @@ struct FGeneratedWorldTerrainSettings
 		TArray<FVector> InVertices,
 		TArray<int32> InTriangles,
 		TArray<FVector> InNormals,
-		TArray<FVector2D> InUVO
+		TArray<FVector2D> InUVs,
+		TArray<FProcMeshTangent> InTangents
 	)
 	{
 		GridSize = InGridSize;
@@ -68,7 +72,8 @@ struct FGeneratedWorldTerrainSettings
 		Vertices = InVertices;
 		Triangles = InTriangles;
 		Normals = InNormals;
-		UVO = InUVO;
+		UVs = InUVs;
+		Tangents = InTangents;
 	}
 
 public:

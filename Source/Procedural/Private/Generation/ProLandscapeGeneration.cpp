@@ -34,10 +34,10 @@ void AProLandscapeGeneration::BeginPlay()
 			GeneratedWorldTerrainSettings.Vertices,
 			GeneratedWorldTerrainSettings.Triangles,
 			GeneratedWorldTerrainSettings.Normals,
-			GeneratedWorldTerrainSettings.UVO,
+			GeneratedWorldTerrainSettings.UVs,
 			TArray<FColor>(),
-			TArray<FProcMeshTangent>(),
-			true);
+			GeneratedWorldTerrainSettings.Tangents,
+			false);
 
 	}
 }
