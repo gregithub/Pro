@@ -19,6 +19,23 @@ void AProLandscapeGeneration::BeginPlay()
 {
 	Super::BeginPlay();
 
+	RequestTerrainGeneration();
+}
+
+void AProLandscapeGeneration::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void AProLandscapeGeneration::RequestTerrainGeneration()
+{
+	if (ProceduralMeshComponent == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ProceduralMeshComponent is invalid!"));
+
+		return;
+	}
+
 	if (UProGameInstance* ProGameInstance = Cast<UProGameInstance>(UGameplayStatics::GetGameInstance(this)))
 	{
 		const FGeneratedWorldTerrainSettings& GeneratedWorldTerrainSettings = ProGameInstance->GetWorldTerrainSettings();
@@ -38,21 +55,10 @@ void AProLandscapeGeneration::BeginPlay()
 			TArray<FColor>(),
 			GeneratedWorldTerrainSettings.Tangents,
 			false);
-
 	}
 }
 
-void AProLandscapeGeneration::Tick(float DeltaTime)
+void AProLandscapeGeneration::CallInEditor_RegenerateTerrain()
 {
-	Super::Tick(DeltaTime);
-}
-
-void AProLandscapeGeneration::RequestTerrainGeneration()
-{
-	if (ProceduralMeshComponent == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ProceduralMeshComponent is invalid!"));
-
-		return;
-	}
+	RequestTerrainGeneration();
 }

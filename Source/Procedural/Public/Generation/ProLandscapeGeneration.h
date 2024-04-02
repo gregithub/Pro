@@ -14,6 +14,10 @@ class PROCEDURAL_API AProLandscapeGeneration : public AActor
 	GENERATED_BODY()
 	
 protected:
+	UFUNCTION(CallInEditor, Category = "Pro")
+	void CallInEditor_RegenerateTerrain();
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UProceduralMeshComponent* ProceduralMeshComponent = nullptr;	
 

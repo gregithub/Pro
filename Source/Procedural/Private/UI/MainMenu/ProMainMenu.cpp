@@ -2,7 +2,7 @@
 
 
 #include "UI/MainMenu/ProMainMenu.h"
-#include "UI/MainMenu/Components/ProMainMenuButton.h"
+#include "Components/Button.h"
 #include "GameMode/ProGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
 

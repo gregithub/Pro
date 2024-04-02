@@ -9,8 +9,6 @@
 class UCanvasPanel;
 class UBorder;
 class UButton;
-//class UVerticalBox;
-class UProMainMenuButton;
 
 UCLASS()
 class PROCEDURAL_API UProMainMenu : public UUserWidget
@@ -22,10 +20,10 @@ protected:
 	UCanvasPanel* MainCanvas = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
-	UProMainMenuButton* PlayButton = nullptr;
+	UButton* PlayButton = nullptr;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Pro|UI", meta = (BindWidget))
-	UProMainMenuButton* GenerateButton = nullptr;
+	UButton* GenerateButton = nullptr;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Pro|Config")
