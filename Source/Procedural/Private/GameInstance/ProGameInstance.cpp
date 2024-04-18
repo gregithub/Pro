@@ -2,8 +2,3 @@
 
 
 #include "GameInstance/ProGameInstance.h"
-
-void UProGameInstance::SetWorldTerrainSettings(const FGeneratedWorldTerrainSettings& InTerrainWorldSettings)
-{
-	GeneratedWorldTerrainSettings = InTerrainWorldSettings;
-}

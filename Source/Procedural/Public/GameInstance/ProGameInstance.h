@@ -12,12 +12,4 @@ class PROCEDURAL_API UProGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-public:
-	void SetWorldTerrainSettings(const FGeneratedWorldTerrainSettings& InTerrainWorldSettings);
-
-	const FGeneratedWorldTerrainSettings& GetWorldTerrainSettings() const { return GeneratedWorldTerrainSettings; };
-
-protected:
-	FGeneratedWorldTerrainSettings GeneratedWorldTerrainSettings;
-
 };

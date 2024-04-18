@@ -51,7 +51,6 @@ void UProMainMenu::OnGenerateButtonReleased()
 {
 	if (AProGameModeBase* ProGameModeBase = Cast<AProGameModeBase>(UGameplayStatics::GetGameMode(GetWorld())))
 	{
-		ProGameModeBase->RequestGenerateWorld();
 	}
 	else
 	{

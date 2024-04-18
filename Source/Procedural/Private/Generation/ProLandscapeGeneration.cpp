@@ -12,6 +12,7 @@ AProLandscapeGeneration::AProLandscapeGeneration()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	WorldGenerationComponent = CreateDefaultSubobject<UProWorldGenerationComponent>(TEXT("ProWorldGenerationComponent"));
 	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
 }
 
@@ -32,30 +33,24 @@ void AProLandscapeGeneration::RequestTerrainGeneration()
 	if (ProceduralMeshComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ProceduralMeshComponent is invalid!"));
-
 		return;
 	}
 
-	if (UProGameInstance* ProGameInstance = Cast<UProGameInstance>(UGameplayStatics::GetGameInstance(this)))
+	if (GeneratedWorldTerrainSettings.IsValid() == false)
 	{
-		const FGeneratedWorldTerrainSettings& GeneratedWorldTerrainSettings = ProGameInstance->GetWorldTerrainSettings();
-
-		if (GeneratedWorldTerrainSettings.IsValid() == false)
-		{
-			UE_LOG(LogTemp, Error, TEXT("GeneratedWorldTerrainSettings is invalid!"));
-			return;
-		}
-
-		ProceduralMeshComponent->CreateMeshSection(
-			0,
-			GeneratedWorldTerrainSettings.Vertices,
-			GeneratedWorldTerrainSettings.Triangles,
-			GeneratedWorldTerrainSettings.Normals,
-			GeneratedWorldTerrainSettings.UVs,
-			TArray<FColor>(),
-			GeneratedWorldTerrainSettings.Tangents,
-			false);
+		UE_LOG(LogTemp, Error, TEXT("GeneratedWorldTerrainSettings is invalid!"));
+		return;
 	}
+
+	ProceduralMeshComponent->CreateMeshSection(
+		0,
+		GeneratedWorldTerrainSettings.Vertices,
+		GeneratedWorldTerrainSettings.Triangles,
+		GeneratedWorldTerrainSettings.Normals,
+		GeneratedWorldTerrainSettings.UVs,
+		TArray<FColor>(),
+		GeneratedWorldTerrainSettings.Tangents,
+		false);
 }
 
 void AProLandscapeGeneration::CallInEditor_RegenerateTerrain()

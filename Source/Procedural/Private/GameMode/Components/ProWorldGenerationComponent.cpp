@@ -24,14 +24,3 @@ void UProWorldGenerationComponent::TickComponent(float DeltaTime, ELevelTick Tic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
-
-bool UProWorldGenerationComponent::WorldGeneration_RequestTerrainGeneration()
-{
-	if (UProGameInstance* ProGameInstance = Cast<UProGameInstance>(UGameplayStatics::GetGameInstance(this)))
-	{
-		ProGameInstance->SetWorldTerrainSettings(TerrainGenerationSubcomponent->RequestTerrainGeneration());
-		return true;
-	}
-
-	return false;
-}

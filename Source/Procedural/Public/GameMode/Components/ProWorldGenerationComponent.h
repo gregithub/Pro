@@ -20,8 +20,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-	bool WorldGeneration_RequestTerrainGeneration();
-
 	UProTerrainGenerationSubcomponent* GetTerrainGenerationSubcomponent() const { ensure(TerrainGenerationSubcomponent); return TerrainGenerationSubcomponent; };
 
 protected:

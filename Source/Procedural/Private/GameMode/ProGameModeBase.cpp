@@ -7,7 +7,6 @@
 
 AProGameModeBase::AProGameModeBase()
 {
-	WorldGenerationComponent = CreateDefaultSubobject<UProWorldGenerationComponent>(TEXT("ProWorldGenerationComponent"));
 }
 
 void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) 
@@ -18,17 +17,4 @@ void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 void AProGameModeBase::InitGameState()
 {
 	Super::InitGameState();
-}
-
-bool AProGameModeBase::RequestGenerateWorld()
-{
-	if (WorldGenerationComponent == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("WorldGenerationComponent is invalid!"));
-		return false;
-	}
-
-	WorldGenerationComponent->WorldGeneration_RequestTerrainGeneration();
-
-	return true;
 }
