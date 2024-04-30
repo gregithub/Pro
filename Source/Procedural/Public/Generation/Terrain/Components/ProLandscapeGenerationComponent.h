@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameMode/Components/Subcomponents/ProWorldGenerationSubcomponentBase.h"
+#include "Components/ActorComponent.h"
 #include "ProceduralMeshComponent.h"
-#include "ProTerrainGenerationSubcomponent.generated.h"
+#include "ProLandscapeGenerationComponent.generated.h"
 
 USTRUCT(BlueprintType)
 struct FGridSize
@@ -80,13 +80,17 @@ public:
 	bool IsValid() const { return true; };
 };
 
+class AProGameModeBase;
 
-UCLASS()
-class PROCEDURAL_API UProTerrainGenerationSubcomponent : public UProWorldGenerationSubcomponentBase
+UCLASS(BlueprintType, ClassGroup = (Pro), meta = (BlueprintSpawnableComponent))
+class PROCEDURAL_API UProLandscapeGenerationComponent : public UActorComponent
 {
 	GENERATED_BODY()
-	
-public:
+
+public:	
+	UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer);
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	FGeneratedWorldTerrainSettings RequestTerrainGeneration();
 };

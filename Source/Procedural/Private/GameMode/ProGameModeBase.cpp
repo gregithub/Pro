@@ -2,8 +2,6 @@
 
 
 #include "GameMode/ProGameModeBase.h"
-#include "ProceduralMeshComponent.h"
-#include "GameMode/Components/ProWorldGenerationComponent.h"
 
 AProGameModeBase::AProGameModeBase()
 {

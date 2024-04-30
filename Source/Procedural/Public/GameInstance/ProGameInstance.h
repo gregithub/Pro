@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
 #include "ProGameInstance.generated.h"
 
 UCLASS()

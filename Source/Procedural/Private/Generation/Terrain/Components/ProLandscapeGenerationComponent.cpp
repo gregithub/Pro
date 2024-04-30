@@ -1,12 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
+#include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
+#include "ProceduralMeshComponent.h"
+#include "GameInstance/ProGameInstance.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameMode/ProGameModeBase.h"
+#include "KismetProceduralMeshLibrary.h"
 #include "LandscapeComponent.h"
 #include "Math.h"
-#include "KismetProceduralMeshLibrary.h"
 
-FGeneratedWorldTerrainSettings UProTerrainGenerationSubcomponent::RequestTerrainGeneration()
+UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
+{
+	PrimaryComponentTick.bCanEverTick = true;
+}
+
+void UProLandscapeGenerationComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+void UProLandscapeGenerationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+FGeneratedWorldTerrainSettings UProLandscapeGenerationComponent::RequestTerrainGeneration()
 {
 	FGeneratedWorldTerrainSettings WorldSettings;
 
@@ -20,7 +39,7 @@ FGeneratedWorldTerrainSettings UProTerrainGenerationSubcomponent::RequestTerrain
 			const float Height = NoiseValue * 100.0f;
 
 			WorldSettings.Vertices.Add(FVector(CurrentRow * WorldSettings.CellsSize, Height, CurrentColumn * WorldSettings.CellsSize));
-			WorldSettings.UVs.Add(FVector2D(CurrentRow/WorldSettings.GridSize.X, CurrentColumn/WorldSettings.GridSize.Y));
+			WorldSettings.UVs.Add(FVector2D(CurrentRow / WorldSettings.GridSize.X, CurrentColumn / WorldSettings.GridSize.Y));
 		}
 	}
 
@@ -28,10 +47,8 @@ FGeneratedWorldTerrainSettings UProTerrainGenerationSubcomponent::RequestTerrain
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(WorldSettings.Vertices, WorldSettings.Triangles, WorldSettings.UVs, WorldSettings.Normals, WorldSettings.Tangents);
 
 	return WorldSettings;
-}
 
-
-//
+	//
 //{
 // 
 //  WorldSettings.Vertices.Add(FVector(CurrentRow * WorldSettings.CellsSize, CurrentColumn * WorldSettings.CellsSize, Height));
@@ -51,3 +68,4 @@ FGeneratedWorldTerrainSettings UProTerrainGenerationSubcomponent::RequestTerrain
 //	WorldSettings.Triangles.Add(CurrentIndex + 1);
 // }
 //}
+}

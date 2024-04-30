@@ -1,34 +1,33 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Generation/ProLandscapeGeneration.h"
+#include "Generation/Terrain/ProTerrainGeneration.h"
 #include "ProceduralMeshComponent.h"
 #include "GameInstance/ProGameInstance.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
-#include "GameMode/Components/ProWorldGenerationComponent.h"
+#include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
 
-AProLandscapeGeneration::AProLandscapeGeneration()
+AProTerrainGeneration::AProTerrainGeneration()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	WorldGenerationComponent = CreateDefaultSubobject<UProWorldGenerationComponent>(TEXT("ProWorldGenerationComponent"));
+	ProLandscapeGenerationComponent = CreateDefaultSubobject<UProLandscapeGenerationComponent>(TEXT("ProWorldGenerationComponent"));
 	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
 }
 
-void AProLandscapeGeneration::BeginPlay()
+void AProTerrainGeneration::BeginPlay()
 {
 	Super::BeginPlay();
 
 	RequestTerrainGeneration();
 }
 
-void AProLandscapeGeneration::Tick(float DeltaTime)
+void AProTerrainGeneration::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void AProLandscapeGeneration::RequestTerrainGeneration()
+void AProTerrainGeneration::RequestTerrainGeneration()
 {
 	if (ProceduralMeshComponent == nullptr)
 	{
@@ -53,7 +52,7 @@ void AProLandscapeGeneration::RequestTerrainGeneration()
 		false);
 }
 
-void AProLandscapeGeneration::CallInEditor_RegenerateTerrain()
+void AProTerrainGeneration::CallInEditor_RegenerateTerrain()
 {
 	RequestTerrainGeneration();
 }

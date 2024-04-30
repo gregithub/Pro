@@ -4,19 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "GameMode/Components/Subcomponents/ProTerrainGenerationSubcomponent.h"
-#include "ProLandscapeGeneration.generated.h"
+#include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
+#include "ProTerrainGeneration.generated.h"
 
 class UProWorldGenerationComponent;
 class UProceduralMeshComponent;
 
 UCLASS()
-class PROCEDURAL_API AProLandscapeGeneration : public AActor
+class PROCEDURAL_API AProTerrainGeneration : public AActor
 {
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UProWorldGenerationComponent* WorldGenerationComponent = nullptr;
+	UProLandscapeGenerationComponent* ProLandscapeGenerationComponent = nullptr;
 
 protected:
 	UFUNCTION(CallInEditor, Category = "Pro")
@@ -27,17 +27,16 @@ protected:
 	UProceduralMeshComponent* ProceduralMeshComponent = nullptr;	
 
 public:
-	AProLandscapeGeneration();
+	AProTerrainGeneration();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 	void RequestTerrainGeneration();
 
-
 	const FGeneratedWorldTerrainSettings& GetWorldTerrainSettings() const { return GeneratedWorldTerrainSettings; };
 
 	UProceduralMeshComponent* GetProceduralMeshComponent() { return ProceduralMeshComponent; };
-	UProWorldGenerationComponent* GetProWorldGenerationComponent() { return WorldGenerationComponent; };
+	UProLandscapeGenerationComponent* GetProWorldGenerationComponent() { return ProLandscapeGenerationComponent; };
 
 protected:
 	FGeneratedWorldTerrainSettings GeneratedWorldTerrainSettings;
