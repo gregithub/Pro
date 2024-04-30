@@ -29,6 +29,8 @@ void AProTerrainGeneration::Tick(float DeltaTime)
 
 void AProTerrainGeneration::RequestTerrainGeneration()
 {
+	GeneratedWorldTerrainSettings = ProLandscapeGenerationComponent->GenerateLandscapeSettings();
+
 	if (ProceduralMeshComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ProceduralMeshComponent is invalid!"));
@@ -41,8 +43,12 @@ void AProTerrainGeneration::RequestTerrainGeneration()
 		return;
 	}
 
+	const int32 LocalSectionIndex = 0;
+
+	ProceduralMeshComponent->ClearMeshSection(LocalSectionIndex);
+
 	ProceduralMeshComponent->CreateMeshSection(
-		0,
+		LocalSectionIndex,
 		GeneratedWorldTerrainSettings.Vertices,
 		GeneratedWorldTerrainSettings.Triangles,
 		GeneratedWorldTerrainSettings.Normals,

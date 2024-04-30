@@ -23,6 +23,10 @@ protected:
 	void CallInEditor_RegenerateTerrain();
 
 protected:
+	UPROPERTY(EditAnywhere, Category = "Pro|Settings")
+	FGeneratedWorldLandscapeSettings GeneratedWorldTerrainSettings;
+
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UProceduralMeshComponent* ProceduralMeshComponent = nullptr;	
 
@@ -33,12 +37,11 @@ public:
 
 	void RequestTerrainGeneration();
 
-	const FGeneratedWorldTerrainSettings& GetWorldTerrainSettings() const { return GeneratedWorldTerrainSettings; };
+	const FGeneratedWorldLandscapeSettings& GetWorldTerrainSettings() const { return GeneratedWorldTerrainSettings; };
 
 	UProceduralMeshComponent* GetProceduralMeshComponent() { return ProceduralMeshComponent; };
 	UProLandscapeGenerationComponent* GetProWorldGenerationComponent() { return ProLandscapeGenerationComponent; };
 
 protected:
-	FGeneratedWorldTerrainSettings GeneratedWorldTerrainSettings;
 
 };

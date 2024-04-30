@@ -7,34 +7,21 @@
 #include "ProceduralMeshComponent.h"
 #include "ProLandscapeGenerationComponent.generated.h"
 
+
 USTRUCT(BlueprintType)
-struct FGridSize
+struct FGeneratedWorldLandscapeSettings
 {
 	GENERATED_BODY()
 
-	int32 X;
-	int32 Y;
+	//TODO: expose struct properties for runtime editor use.
 
-public:
-	FGridSize()
-	{
-		X = 0;
-		Y = 0;
-	}
-	FGridSize(int32 InX, int32 InY)
-	{
-		X = InX;
-		Y = InY;
-	}
-};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector2D GridSize = FVector2D(100, 100);
 
-USTRUCT()
-struct FGeneratedWorldTerrainSettings
-{
-	GENERATED_BODY()
+	UPROPERTY()
+	float WorldScale = 10.0f;
 
-	FGridSize GridSize;
-	float WorldScale;
+	UPROPERTY()
 	float CellsSize = 100.0f;
 
 	TArray<FVector> Vertices;
@@ -43,11 +30,8 @@ struct FGeneratedWorldTerrainSettings
 	TArray<FVector2D> UVs;
 	TArray<FProcMeshTangent> Tangents;
 
-	FGeneratedWorldTerrainSettings()
+	FGeneratedWorldLandscapeSettings()
 	{
-		GridSize = FGridSize(100, 100);
-		WorldScale = 10.0f;
-
 		Vertices = TArray<FVector>();
 		Triangles = TArray<int32>();
 		Normals = TArray<FVector>();
@@ -55,8 +39,8 @@ struct FGeneratedWorldTerrainSettings
 		Tangents = TArray<FProcMeshTangent>();
 	}
 
-	FGeneratedWorldTerrainSettings(
-		FGridSize InGridSize,
+	FGeneratedWorldLandscapeSettings(
+		FVector2D InGridSize,
 		float InWorldScale,
 		float InCellsSize,
 		TArray<FVector> InVertices,
@@ -92,5 +76,5 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FGeneratedWorldTerrainSettings RequestTerrainGeneration();
+	FGeneratedWorldLandscapeSettings GenerateLandscapeSettings();
 };
