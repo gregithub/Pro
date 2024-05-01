@@ -13,17 +13,6 @@ struct FGeneratedWorldLandscapeSettings
 {
 	GENERATED_BODY()
 
-	//TODO: expose struct properties for runtime editor use.
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector2D GridSize = FVector2D(100, 100);
-
-	UPROPERTY()
-	float WorldScale = 10.0f;
-
-	UPROPERTY()
-	float CellsSize = 100.0f;
-
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 	TArray<FVector> Normals;
@@ -50,9 +39,6 @@ struct FGeneratedWorldLandscapeSettings
 		TArray<FProcMeshTangent> InTangents
 	)
 	{
-		GridSize = InGridSize;
-		WorldScale = InWorldScale;
-		CellsSize = InCellsSize;
 		Vertices = InVertices;
 		Triangles = InTriangles;
 		Normals = InNormals;
@@ -71,10 +57,26 @@ class PROCEDURAL_API UProLandscapeGenerationComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	FVector2D GridSize = FVector2D(100, 100);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	float WorldScale = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	float CellsSize = 100.0f;
+
 public:	
 	UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer);
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FGeneratedWorldLandscapeSettings GenerateLandscapeSettings();
+	bool TryGenerateLandscapeSettings();
+
+	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
+
+protected:
+	FGeneratedWorldLandscapeSettings LandscapeSettings;
+
 };

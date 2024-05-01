@@ -9,10 +9,16 @@
 
 AProTerrainGeneration::AProTerrainGeneration()
 {
+	//NOTE: Is tick needed?
 	PrimaryActorTick.bCanEverTick = true;
 
 	ProLandscapeGenerationComponent = CreateDefaultSubobject<UProLandscapeGenerationComponent>(TEXT("ProWorldGenerationComponent"));
+
 	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
+	ProceduralMeshComponent->SetupAttachment(GetRootComponent());
+	ProceduralMeshComponent->SetCastShadow(false);
+	ProceduralMeshComponent->bUseAsyncCooking = true; //Async collision geometry
+
 }
 
 void AProTerrainGeneration::BeginPlay()
@@ -29,17 +35,29 @@ void AProTerrainGeneration::Tick(float DeltaTime)
 
 void AProTerrainGeneration::RequestTerrainGeneration()
 {
-	GeneratedWorldTerrainSettings = ProLandscapeGenerationComponent->GenerateLandscapeSettings();
-
 	if (ProceduralMeshComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ProceduralMeshComponent is invalid!"));
 		return;
 	}
 
-	if (GeneratedWorldTerrainSettings.IsValid() == false)
+	if (ProLandscapeGenerationComponent == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("GeneratedWorldTerrainSettings is invalid!"));
+		UE_LOG(LogTemp, Error, TEXT("ProLandscapeGenerationComponent is invalid!"));
+		return;
+	}
+	
+	if (ProLandscapeGenerationComponent->TryGenerateLandscapeSettings() == false)
+	{
+		UE_LOG(LogTemp, Error, TEXT("TryGenerateLandscapeSettings failed!"));
+		return;
+	}
+
+	FGeneratedWorldLandscapeSettings TerrainSettings = ProLandscapeGenerationComponent->GetLandscapeSettings();
+
+	if (TerrainSettings.IsValid() == false)
+	{
+		UE_LOG(LogTemp, Error, TEXT("TerrainSettings is invalid!"));
 		return;
 	}
 
@@ -49,13 +67,23 @@ void AProTerrainGeneration::RequestTerrainGeneration()
 
 	ProceduralMeshComponent->CreateMeshSection(
 		LocalSectionIndex,
-		GeneratedWorldTerrainSettings.Vertices,
-		GeneratedWorldTerrainSettings.Triangles,
-		GeneratedWorldTerrainSettings.Normals,
-		GeneratedWorldTerrainSettings.UVs,
+		TerrainSettings.Vertices,
+		TerrainSettings.Triangles,
+		TerrainSettings.Normals,
+		TerrainSettings.UVs,
 		TArray<FColor>(),
-		GeneratedWorldTerrainSettings.Tangents,
+		TerrainSettings.Tangents,
 		false);
+
+	if (MaterialInterface != nullptr)
+	{
+		ProceduralMeshComponent->SetMaterial(0, MaterialInterface);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MaterialInterface is invalid!"));
+		return;
+	}
 }
 
 void AProTerrainGeneration::CallInEditor_RegenerateTerrain()

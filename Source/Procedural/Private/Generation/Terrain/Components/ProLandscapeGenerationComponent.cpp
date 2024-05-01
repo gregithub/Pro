@@ -8,7 +8,7 @@
 #include "GameMode/ProGameModeBase.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "LandscapeComponent.h"
-#include "Math.h"
+#include "Generation/Noise/ProNoise.h"
 
 UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -25,47 +25,26 @@ void UProLandscapeGenerationComponent::TickComponent(float DeltaTime, ELevelTick
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-FGeneratedWorldLandscapeSettings UProLandscapeGenerationComponent::GenerateLandscapeSettings()
+bool UProLandscapeGenerationComponent::TryGenerateLandscapeSettings()
 {
-	FGeneratedWorldLandscapeSettings LandscapeSettings;
+	LandscapeSettings = FGeneratedWorldLandscapeSettings();
 
-	const float LocalWorldScale = LandscapeSettings.WorldScale;
+	const int temp_seed = 10;
 
-	for (int32 CurrentRow = 0; CurrentRow <= LandscapeSettings.GridSize.X; CurrentRow++)
+	for (int32 CurrentRow = 0; CurrentRow <= GridSize.X; CurrentRow++)
 	{
-		for (int32 CurrentColumn = 0; CurrentColumn <= LandscapeSettings.GridSize.Y; CurrentColumn++)
+		for (int32 CurrentColumn = 0; CurrentColumn <= GridSize.Y; CurrentColumn++)
 		{
-			const float NoiseValue = FMath::PerlinNoise2D(FVector2D(CurrentRow, CurrentColumn));
+			const float NoiseValue = ProNoise::SinglePerling(temp_seed, CurrentRow, CurrentColumn);
 			const float Height = NoiseValue * 100.0f;
 
-			LandscapeSettings.Vertices.Add(FVector(CurrentRow * LandscapeSettings.CellsSize, Height, CurrentColumn * LandscapeSettings.CellsSize));
-			LandscapeSettings.UVs.Add(FVector2D(CurrentRow / LandscapeSettings.GridSize.X, CurrentColumn / LandscapeSettings.GridSize.Y));
+			LandscapeSettings.Vertices.Add(FVector(CurrentRow * CellsSize, Height, CurrentColumn * CellsSize));
+			LandscapeSettings.UVs.Add(FVector2D(CurrentRow / GridSize.X, CurrentColumn / GridSize.Y));
 		}
 	}
 
-	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(LandscapeSettings.GridSize.X + 1, LandscapeSettings.GridSize.Y + 1, true, LandscapeSettings.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(GridSize.X + 1, GridSize.Y + 1, true, LandscapeSettings.Triangles);
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(LandscapeSettings.Vertices, LandscapeSettings.Triangles, LandscapeSettings.UVs, LandscapeSettings.Normals, LandscapeSettings.Tangents);
 
-	return LandscapeSettings;
-
-	//
-//{
-// 
-//  LandscapeSettings.Vertices.Add(FVector(CurrentRow * LandscapeSettings.CellsSize, CurrentColumn * LandscapeSettings.CellsSize, Height));
-//  LandscapeSettings.Normals.Add(FVector(0, 0, 1));
-//  LandscapeSettings.UVO.Add(FVector2D(CurrentRow, CurrentColumn)); 
-// 
-//	int32 CurrentIndex = CurrentRow + (CurrentColumn * LandscapeSettings.GridSize.X);
-// 
-// if ((CurrentRow < (LandscapeSettings.GridSize.X - 1)) && (CurrentColumn < (LandscapeSettings.GridSize.Y - 1)))
-//{
-//  LandscapeSettings.Triangles.Add(CurrentIndex);
-//	LandscapeSettings.Triangles.Add(CurrentIndex + LandscapeSettings.GridSize.X);
-//	LandscapeSettings.Triangles.Add(CurrentIndex + 1);
-//
-//	LandscapeSettings.Triangles.Add(CurrentIndex + LandscapeSettings.GridSize.X);
-//	LandscapeSettings.Triangles.Add(CurrentIndex + LandscapeSettings.GridSize.X + 1);
-//	LandscapeSettings.Triangles.Add(CurrentIndex + 1);
-// }
-//}
+	return true;
 }
