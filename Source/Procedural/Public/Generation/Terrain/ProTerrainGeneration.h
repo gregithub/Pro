@@ -8,9 +8,6 @@
 #include "ProTerrainGeneration.generated.h"
 
 class UProWorldGenerationComponent;
-class UProceduralMeshComponent;
-
-//TODO: this should be managing other mesh chunks actors and async creating/destroying them in runtime based on camera location
 
 UCLASS()
 class PROCEDURAL_API AProTerrainGeneration : public AActor
@@ -19,14 +16,11 @@ class PROCEDURAL_API AProTerrainGeneration : public AActor
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UProceduralMeshComponent* ProceduralMeshComponent = nullptr;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UProLandscapeGenerationComponent* ProLandscapeGenerationComponent = nullptr;
+	int32 RenderRange = 5;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UMaterialInterface* MaterialInterface = nullptr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UProLandscapeGenerationComponent* ProLandscapeGenerationComponent = nullptr;
 
 protected:
 	UFUNCTION(CallInEditor, Category = Pro)
@@ -37,10 +31,15 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	void RequestTerrainGeneration();
+	void RequestTerrainGeneration(const int32 InGlobalSeed);
 
+	int32 GetGlobalSeed() const { return GlobalSeed; };
+	int32 GetRenderRange() const { return RenderRange; };
 
-	UProceduralMeshComponent* GetProceduralMeshComponent() { return ProceduralMeshComponent; };
 	UProLandscapeGenerationComponent* GetProWorldGenerationComponent() { return ProLandscapeGenerationComponent; };
 
+protected:
+	int32 GlobalSeed = 0;
+
+	TArray<class AProLandscapeChunk*> CurrentLandscapeChunks;
 };

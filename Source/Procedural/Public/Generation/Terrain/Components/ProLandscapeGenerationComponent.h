@@ -4,8 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "ProceduralMeshComponent.h"
 #include "ProLandscapeGenerationComponent.generated.h"
+
+class AProLandscapeChunk;
+
+UCLASS(BlueprintType)
+class PROCEDURAL_API UGenerationTerrainCurveSettings : public UDataAsset
+{
+	GENERATED_BODY()
+
+	// Higher values correspond to more inland biomes.
+	UPROPERTY(EditDefaultsOnly, Category = "Pro")
+	UCurveFloat* Curve_Continentalness = nullptr;
+
+	// Higher values correspond to more flat terrain.
+	UPROPERTY(EditDefaultsOnly, Category = "Pro")
+	UCurveFloat* Curve_Erosion = nullptr;
+
+	// Used for generatting better peaks and valleys. Higher the value, higher the terrain.
+	UPROPERTY(EditDefaultsOnly, Category = "Pro")
+	UCurveFloat* Curve_PeaksAndValleys = nullptr;
+};
 
 
 USTRUCT(BlueprintType)
@@ -13,38 +32,15 @@ struct FGeneratedWorldLandscapeSettings
 {
 	GENERATED_BODY()
 
-	TArray<FVector> Vertices;
-	TArray<int32> Triangles;
-	TArray<FVector> Normals;
-	TArray<FVector2D> UVs;
-	TArray<FProcMeshTangent> Tangents;
+	//Todo: instead of 2d grid, use distance from player to make more oval terrain range
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	int32 Global_MapSize = 10;
 
-	FGeneratedWorldLandscapeSettings()
-	{
-		Vertices = TArray<FVector>();
-		Triangles = TArray<int32>();
-		Normals = TArray<FVector>();
-		UVs = TArray<FVector2D>();
-		Tangents = TArray<FProcMeshTangent>();
-	}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	float Global_WorldScale = 100.0f;
 
-	FGeneratedWorldLandscapeSettings(
-		FVector2D InGridSize,
-		float InWorldScale,
-		float InCellsSize,
-		TArray<FVector> InVertices,
-		TArray<int32> InTriangles,
-		TArray<FVector> InNormals,
-		TArray<FVector2D> InUVs,
-		TArray<FProcMeshTangent> InTangents
-	)
-	{
-		Vertices = InVertices;
-		Triangles = InTriangles;
-		Normals = InNormals;
-		UVs = InUVs;
-		Tangents = InTangents;
-	}
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	float Global_ChunkSize = 100.0f;
 
 public:
 	bool IsValid() const { return true; };
@@ -58,25 +54,28 @@ class PROCEDURAL_API UProLandscapeGenerationComponent : public UActorComponent
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	FVector2D GridSize = FVector2D(100, 100);
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UGenerationTerrainCurveSettings* GenerationTerrainCurveSettings = nullptr;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	float WorldScale = 10.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGeneratedWorldLandscapeSettings LandscapeSettings;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	float CellsSize = 100.0f;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AProLandscapeChunk> ChunkClass;
 
-public:	
+public:
 	UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer);
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void TickUpdateRequestedChunks();
+
+	AProLandscapeChunk* RequestChunk(const FVector& InLocation);
 
 	bool TryGenerateLandscapeSettings();
 
 	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
 
-protected:
-	FGeneratedWorldLandscapeSettings LandscapeSettings;
+	TMap<FIntVector2, AProLandscapeChunk*> CurrentChunks;
 
 };

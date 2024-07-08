@@ -5,27 +5,23 @@
 #include "ProceduralMeshComponent.h"
 #include "GameInstance/ProGameInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Generation/Terrain/ProLandscapeChunk.h"
 #include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
 
 AProTerrainGeneration::AProTerrainGeneration()
 {
-	//NOTE: Is tick needed?
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	ProLandscapeGenerationComponent = CreateDefaultSubobject<UProLandscapeGenerationComponent>(TEXT("ProWorldGenerationComponent"));
-
-	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
-	ProceduralMeshComponent->SetupAttachment(GetRootComponent());
-	ProceduralMeshComponent->SetCastShadow(false);
-	ProceduralMeshComponent->bUseAsyncCooking = true; //Async collision geometry
-
 }
 
 void AProTerrainGeneration::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RequestTerrainGeneration();
+	GlobalSeed = FMath::RandRange(0, 99999);
+
+	RequestTerrainGeneration(GetGlobalSeed());
 }
 
 void AProTerrainGeneration::Tick(float DeltaTime)
@@ -33,14 +29,8 @@ void AProTerrainGeneration::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AProTerrainGeneration::RequestTerrainGeneration()
+void AProTerrainGeneration::RequestTerrainGeneration(const int32 InGlobalSeed)
 {
-	if (ProceduralMeshComponent == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ProceduralMeshComponent is invalid!"));
-		return;
-	}
-
 	if (ProLandscapeGenerationComponent == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ProLandscapeGenerationComponent is invalid!"));
@@ -53,40 +43,16 @@ void AProTerrainGeneration::RequestTerrainGeneration()
 		return;
 	}
 
-	FGeneratedWorldLandscapeSettings TerrainSettings = ProLandscapeGenerationComponent->GetLandscapeSettings();
+	const FGeneratedWorldLandscapeSettings& TerrainSettings = ProLandscapeGenerationComponent->GetLandscapeSettings();
 
 	if (TerrainSettings.IsValid() == false)
 	{
 		UE_LOG(LogTemp, Error, TEXT("TerrainSettings is invalid!"));
 		return;
 	}
-
-	const int32 LocalSectionIndex = 0;
-
-	ProceduralMeshComponent->ClearMeshSection(LocalSectionIndex);
-
-	ProceduralMeshComponent->CreateMeshSection(
-		LocalSectionIndex,
-		TerrainSettings.Vertices,
-		TerrainSettings.Triangles,
-		TerrainSettings.Normals,
-		TerrainSettings.UVs,
-		TArray<FColor>(),
-		TerrainSettings.Tangents,
-		false);
-
-	if (MaterialInterface != nullptr)
-	{
-		ProceduralMeshComponent->SetMaterial(0, MaterialInterface);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("MaterialInterface is invalid!"));
-		return;
-	}
 }
 
 void AProTerrainGeneration::CallInEditor_RegenerateTerrain()
 {
-	RequestTerrainGeneration();
+	RequestTerrainGeneration(GetGlobalSeed());
 }

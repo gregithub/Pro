@@ -3,6 +3,7 @@
 
 #include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "Generation/Terrain/ProLandscapeChunk.h"
 #include "GameInstance/ProGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameMode/ProGameModeBase.h"
@@ -18,33 +19,63 @@ UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObject
 void UProLandscapeGenerationComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TickUpdateRequestedChunks();
 }
 
 void UProLandscapeGenerationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+}
+
+void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
+{
+	//Todo: this should be player coordinates
+	const FIntVector2 TempCordinates = FIntVector2(0, 0);
+
+	const FGeneratedWorldLandscapeSettings& CurrentLandscapeSettings = GetLandscapeSettings();
+
+	const int32 FirstChunkLocationX = (TempCordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
+	const int32 FirstChunkLocationY = (TempCordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
+
+	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + CurrentLandscapeSettings.Global_MapSize); CurrentRow++)
+	{
+		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + CurrentLandscapeSettings.Global_MapSize); CurrentColumn++)
+		{
+			const FVector ChunkLocation = FVector(float(CurrentRow * CurrentLandscapeSettings.Global_ChunkSize), float(CurrentColumn * CurrentLandscapeSettings.Global_ChunkSize), 0.0f);
+
+			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkLocation))
+			{
+				CurrentChunks.Add(FIntVector2(CurrentRow, CurrentColumn), CreatedChunk);
+			}
+		}
+	}
 }
 
 bool UProLandscapeGenerationComponent::TryGenerateLandscapeSettings()
 {
-	LandscapeSettings = FGeneratedWorldLandscapeSettings();
-
-	const int temp_seed = 10;
-
-	for (int32 CurrentRow = 0; CurrentRow <= GridSize.X; CurrentRow++)
-	{
-		for (int32 CurrentColumn = 0; CurrentColumn <= GridSize.Y; CurrentColumn++)
-		{
-			const float NoiseValue = ProNoise::SinglePerling(temp_seed, CurrentRow, CurrentColumn);
-			const float Height = NoiseValue * 100.0f;
-
-			LandscapeSettings.Vertices.Add(FVector(CurrentRow * CellsSize, Height, CurrentColumn * CellsSize));
-			LandscapeSettings.UVs.Add(FVector2D(CurrentRow / GridSize.X, CurrentColumn / GridSize.Y));
-		}
-	}
-
-	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(GridSize.X + 1, GridSize.Y + 1, true, LandscapeSettings.Triangles);
-	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(LandscapeSettings.Vertices, LandscapeSettings.Triangles, LandscapeSettings.UVs, LandscapeSettings.Normals, LandscapeSettings.Tangents);
+	const int RandomSeed = FMath::RandRange(10000,99999);
 
 	return true;
+}
+
+AProLandscapeChunk* UProLandscapeGenerationComponent::RequestChunk(const FVector& InLocation)
+{
+	if (ChunkClass == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ChunkClass is invalid!"));
+		return nullptr;
+	}
+
+	const FTransform ChunkTransform = FTransform(FRotator::ZeroRotator, InLocation, FVector::ZeroVector);
+
+	if (AProLandscapeChunk* CreatedChunk = GetWorld()->SpawnActor<AProLandscapeChunk>(ChunkClass, ChunkTransform))
+	{
+		CreatedChunk->RequestCreateMeshSection(InLocation, GetLandscapeSettings());
+
+		return CreatedChunk;
+	}
+
+	return nullptr;
 }

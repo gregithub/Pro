@@ -2,15 +2,13 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-
 class PROCEDURAL_API ProNoise
 {
 public:
 	ProNoise();
 	~ProNoise();
 
-	static float SinglePerling(int32 seed, float x, float y);
+	static float SinglePerling(const FVector& InLocation, int32 seed);
 
 protected:
 

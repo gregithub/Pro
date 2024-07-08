@@ -12,7 +12,9 @@ ProNoise::~ProNoise()
 {
 }
 
-float ProNoise::SinglePerling(int32 seed, float x, float y)
+float ProNoise::SinglePerling(const FVector& InLocation, int32 seed)
 {
-    return 0.0f;
+    float ReturnValue = FMath::PerlinNoise3D(InLocation);
+
+    return ReturnValue;
 }
