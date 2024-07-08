@@ -9,7 +9,6 @@
 #include "GameMode/ProGameModeBase.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "LandscapeComponent.h"
-#include "Generation/Noise/ProNoise.h"
 
 UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -68,7 +67,7 @@ AProLandscapeChunk* UProLandscapeGenerationComponent::RequestChunk(const FVector
 		return nullptr;
 	}
 
-	const FTransform ChunkTransform = FTransform(FRotator::ZeroRotator, InLocation, FVector::ZeroVector);
+	const FTransform ChunkTransform = FTransform(FRotator::ZeroRotator, InLocation, FVector::OneVector);
 
 	if (AProLandscapeChunk* CreatedChunk = GetWorld()->SpawnActor<AProLandscapeChunk>(ChunkClass, ChunkTransform))
 	{

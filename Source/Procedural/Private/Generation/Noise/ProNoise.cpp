@@ -12,9 +12,11 @@ ProNoise::~ProNoise()
 {
 }
 
-float ProNoise::SinglePerling(const FVector& InLocation, int32 seed)
+float ProNoise::SinglePerling(const FVector& InLocation, const FProNoiseOffsets& InNoiseOffsets)
 {
-    float ReturnValue = FMath::PerlinNoise3D(InLocation);
+	FProNoiseSettings Settings = FProNoiseSettings();
 
-    return ReturnValue;
+	const FVector OffsetedVector = Settings.NoiseVector(InLocation, InNoiseOffsets);
+
+	return Settings.OctaveNoise(OffsetedVector);
 }

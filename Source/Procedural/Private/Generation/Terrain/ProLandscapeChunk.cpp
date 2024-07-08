@@ -25,32 +25,32 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FVector& InLocation, con
 { 
 	const int32 LocalSectionIndex = 0;
 
+	const int32 NumOfVerticesPerAxis = 3;
+
 	Vertices.Empty();
 	Triangles.Empty();
 
-	const int32 RandomSeed = 0;
+	const float HeightNoiseMultiplier = 100.0f;
 
-	const float NoiseValue = ProNoise::SinglePerling(InLocation, RandomSeed);
+	for (int32 VerticesX = 0; VerticesX < NumOfVerticesPerAxis; VerticesX++)
+	{
+		for (int32 VerticesY = 0; VerticesY < NumOfVerticesPerAxis; VerticesY++)
+		{
+			FVector VerticeLocation = FVector(
+				((float)VerticesX / (float)(NumOfVerticesPerAxis - 1) * InSettings.Global_ChunkSize),
+				((float)VerticesY / (float)(NumOfVerticesPerAxis - 1) * InSettings.Global_ChunkSize),
+				0.0f);
 
-	const float Height = (NoiseValue * InSettings.Global_WorldScale);
+			VerticeLocation.Z = (ProNoise::SinglePerling((VerticeLocation + InLocation), InSettings.GetNoiseOffsets()) * HeightNoiseMultiplier);
 
-	Vertices.Add(FVector(0.0f, 0.0f, 0.0f));
-	Vertices.Add(FVector(0.0f, 1.0f * InSettings.Global_ChunkSize, Height));
-	Vertices.Add(FVector(1.0f * InSettings.Global_ChunkSize, 0.0f, Height));
-	Vertices.Add(FVector(1.0f * InSettings.Global_ChunkSize, 1.0f * InSettings.Global_ChunkSize, Height));
-
-	Triangles.Add(0);
-	Triangles.Add(1);
-	Triangles.Add(2);
-
-	Triangles.Add(3);
-	Triangles.Add(2);
-	Triangles.Add(1);
+			Vertices.Add(FVector(VerticeLocation));
+		}
+	}
 
 	TArray<FVector> Normals;
 	TArray<FProcMeshTangent> Tangents;
 
-	//UKismetProceduralMeshLibrary::CreateGridMeshTriangles((Global_ChunksNum2D.X + 1), (Global_ChunksNum2D.Y + 1), true, LandscapeSettings.Triangles);
+	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(NumOfVerticesPerAxis, NumOfVerticesPerAxis, false, Triangles);
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UVs, Normals, Tangents);
 	
 	//ProceduralMeshComponent->ClearMeshSection(LocalSectionIndex);

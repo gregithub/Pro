@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Generation/Noise/ProNoise.h"
 #include "ProLandscapeGenerationComponent.generated.h"
 
 class AProLandscapeChunk;
@@ -32,6 +33,13 @@ struct FGeneratedWorldLandscapeSettings
 {
 	GENERATED_BODY()
 
+	FGeneratedWorldLandscapeSettings ()
+	{
+		RandomStream = FRandomStream(1);
+
+		NoiseOffsets = FProNoiseOffsets(RandomStream);
+	}
+
 	//Todo: instead of 2d grid, use distance from player to make more oval terrain range
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 Global_MapSize = 10;
@@ -42,8 +50,12 @@ struct FGeneratedWorldLandscapeSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	float Global_ChunkSize = 100.0f;
 
+	FProNoiseOffsets NoiseOffsets = FProNoiseOffsets();
+	FRandomStream RandomStream;
 public:
 	bool IsValid() const { return true; };
+
+	const FProNoiseOffsets& GetNoiseOffsets() const { return NoiseOffsets; };
 };
 
 class AProGameModeBase;
