@@ -10,7 +10,7 @@ AProLandscapeChunk::AProLandscapeChunk()
 {
 	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
 	SetRootComponent(ProceduralMeshComponent);
-	ProceduralMeshComponent->SetCastShadow(false);
+	ProceduralMeshComponent->SetCastShadow(true);
 	ProceduralMeshComponent->bUseAsyncCooking = true; //Async collision geometry
 
 	PrimaryActorTick.bCanEverTick = false;
@@ -29,6 +29,10 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FVector& InLocation, con
 
 	Vertices.Empty();
 	Triangles.Empty();
+	UVs.Empty();
+
+	TArray<FVector> Normals;
+	TArray<FProcMeshTangent> Tangents;
 
 	const float HeightNoiseMultiplier = 100.0f;
 
@@ -47,13 +51,10 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FVector& InLocation, con
 		}
 	}
 
-	TArray<FVector> Normals;
-	TArray<FProcMeshTangent> Tangents;
-
 	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(NumOfVerticesPerAxis, NumOfVerticesPerAxis, false, Triangles);
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UVs, Normals, Tangents);
 	
-	//ProceduralMeshComponent->ClearMeshSection(LocalSectionIndex);
+	ProceduralMeshComponent->ClearMeshSection(LocalSectionIndex);
 
 	ProceduralMeshComponent->CreateMeshSection(
 		LocalSectionIndex,
