@@ -18,10 +18,6 @@ AProTerrainGeneration::AProTerrainGeneration()
 void AProTerrainGeneration::BeginPlay()
 {
 	Super::BeginPlay();
-
-	GlobalSeed = FMath::RandRange(0, 99999);
-
-	RequestTerrainGeneration(GetGlobalSeed());
 }
 
 void AProTerrainGeneration::Tick(float DeltaTime)
@@ -29,7 +25,7 @@ void AProTerrainGeneration::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AProTerrainGeneration::RequestTerrainGeneration(const int32 InGlobalSeed)
+void AProTerrainGeneration::RequestTerrainGeneration()
 {
 	if (ProLandscapeGenerationComponent == nullptr)
 	{
@@ -54,5 +50,5 @@ void AProTerrainGeneration::RequestTerrainGeneration(const int32 InGlobalSeed)
 
 void AProTerrainGeneration::CallInEditor_RegenerateTerrain()
 {
-	RequestTerrainGeneration(GetGlobalSeed());
+	RequestTerrainGeneration();
 }

@@ -18,14 +18,18 @@ UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObject
 void UProLandscapeGenerationComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	TickUpdateRequestedChunks();
 }
 
 void UProLandscapeGenerationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (bTempInitalizedChunks == false)
+	{
+		bTempInitalizedChunks = true;
+
+		TickUpdateRequestedChunks();
+	}
 }
 
 void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
@@ -71,7 +75,7 @@ AProLandscapeChunk* UProLandscapeGenerationComponent::RequestChunk(const FVector
 
 	if (AProLandscapeChunk* CreatedChunk = GetWorld()->SpawnActor<AProLandscapeChunk>(ChunkClass, ChunkTransform))
 	{
-		CreatedChunk->RequestCreateMeshSection(InLocation, GetLandscapeSettings());
+		CreatedChunk->RequestCreateMeshSection(GetLandscapeSettings());
 
 		return CreatedChunk;
 	}

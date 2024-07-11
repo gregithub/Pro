@@ -2,9 +2,11 @@
 
 
 #include "GameMode/ProGameModeBase.h"
+#include "Generation/Noise/ProNoiseComponent.h"
 
 AProGameModeBase::AProGameModeBase()
 {
+	ProNoiseComponent = CreateDefaultSubobject<UProNoiseComponent>(TEXT("ProNoiseComponent"));
 }
 
 void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) 
@@ -15,4 +17,14 @@ void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 void AProGameModeBase::InitGameState()
 {
 	Super::InitGameState();
+}
+
+AProGameModeBase* AProGameModeBase::GetInstance(const UObject* const WorldContextObject)
+{
+	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		return Cast<AProGameModeBase>(World->GetAuthGameMode());
+	}
+
+	return nullptr;
 }

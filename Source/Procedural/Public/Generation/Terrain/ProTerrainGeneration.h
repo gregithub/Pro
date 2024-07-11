@@ -15,10 +15,6 @@ class PROCEDURAL_API AProTerrainGeneration : public AActor
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	int32 RenderRange = 5;
-
-protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UProLandscapeGenerationComponent* ProLandscapeGenerationComponent = nullptr;
 
@@ -31,15 +27,7 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-	void RequestTerrainGeneration(const int32 InGlobalSeed);
-
-	int32 GetGlobalSeed() const { return GlobalSeed; };
-	int32 GetRenderRange() const { return RenderRange; };
+	void RequestTerrainGeneration();
 
 	UProLandscapeGenerationComponent* GetProWorldGenerationComponent() { return ProLandscapeGenerationComponent; };
-
-protected:
-	int32 GlobalSeed = 0;
-
-	TArray<class AProLandscapeChunk*> CurrentLandscapeChunks;
 };
