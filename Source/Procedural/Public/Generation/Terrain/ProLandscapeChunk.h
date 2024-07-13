@@ -21,6 +21,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UMaterialInterface* MaterialInterface = nullptr;
 
+protected:
+	UFUNCTION(CallInEditor, Category = Pro)
+	void CallInEditor_PrintInfo();
+
 public:	
 	AProLandscapeChunk();
 	virtual void BeginPlay() override;
@@ -37,9 +41,13 @@ public:
 	TArray<FVector> Normals;
 	TArray<FProcMeshTangent> Tangents;
 
+	TArray<float> NoiseContinentalnessValues;
+	TArray<float> NoiseErosionValues;
+	TArray<float> NoisePeaksAndValleysValues;
+
 protected:
 	void PrepareArrays(const int32 InVerticesNum);
 
-	float CalculateHeight(const FVector2D& InVertexLocation) const;
+	float CalculateHeight(const FVector2D& InVertexLocation);
 
 };

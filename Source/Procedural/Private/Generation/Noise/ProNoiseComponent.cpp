@@ -23,15 +23,13 @@ void UProNoiseComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	NoiseSettings = FProNoiseSettings();
-
-	RandomStream = FRandomStream(1);
+	RandomStream = FRandomStream(2);
 
 	NoiseOffsets = FProNoiseOffsets(RandomStream);
 }
 
 
-float UProNoiseComponent::SinglePerling(const FVector2D& InLocation)
+float UProNoiseComponent::SinglePerling(const FVector& InLocation)
 {
 	const FVector OffsetedVector = NoiseSettings.NoiseVector(InLocation, NoiseOffsets);
 

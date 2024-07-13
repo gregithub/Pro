@@ -50,14 +50,22 @@ private:
 	static constexpr double RandomOffsetScale = 100.0;
 };
 
+USTRUCT(BlueprintType)
 struct FProNoiseSettings
 {
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	float Amplitude = 2;
-	float Frequency = .1;
+		
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	float Frequency = 2.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 Octaves = 4;
-	float PointSpacing = 1;
-	float Lacunarity = 2;
-	float Persistence = .5;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
+	float Persistence = 2.0f;
 
 	FVector NoiseVector(const FVector& Pos, const FProNoiseOffsets& Offsets) const
 	{
@@ -72,13 +80,19 @@ struct FProNoiseSettings
 	float OctaveNoise(const FVector& V) const
 	{
 		float NoiseValue = 0;
-		float FreqScale = 1;
-		float AmpScale = 1;
-		for (int32 Octave = 0; Octave < Octaves; Octave++, FreqScale *= Lacunarity, AmpScale *= Persistence)
+		float LocalFrequency = Frequency;
+		float LocalAmplitude = Amplitude;
+		float MaxValue = 0;
+
+		for (int32 Octave = 0; Octave < Octaves; Octave++)
 		{
-			NoiseValue += FMath::PerlinNoise3D(V * FreqScale) * AmpScale;
+			NoiseValue += FMath::PerlinNoise3D(V * LocalFrequency) * LocalAmplitude;
+
+			MaxValue  += LocalAmplitude;
+			LocalAmplitude *= Persistence;
+			LocalFrequency *= 2;
 		}
-		return NoiseValue;
+		return NoiseValue/MaxValue;
 	}
 };
 
@@ -87,6 +101,9 @@ class PROCEDURAL_API UProNoiseComponent : public UActorComponent
 {
 	GENERATED_BODY()
 protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FProNoiseSettings NoiseSettings;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UNoiseCurveSettings* NoiseCurveSettings = nullptr;
 
@@ -107,7 +124,6 @@ protected:
 	static float InterpQuintic(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 
 protected:
-	FProNoiseSettings NoiseSettings;
 	FRandomStream RandomStream;
 	FProNoiseOffsets NoiseOffsets;
 };
