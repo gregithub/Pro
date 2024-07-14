@@ -19,13 +19,13 @@ struct FGeneratedWorldLandscapeSettings
 	int32 Global_MapSize = 40;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	float Global_ChunkSize = 100.0f;
+	float Global_ChunkSize = 400.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	float Global_UVScale = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	int32 ChunkVerticesPerAxis = 2;
+	int32 ChunkVerticesPerAxis = 3;
 
 public:
 	bool IsValid() const { return (ChunkVerticesPerAxis >= 2); };

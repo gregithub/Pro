@@ -77,3 +77,6 @@ DerivedDataCache/*
 
 /Content/StarterContent/*
 /Content/STF/*
+/Content/Characters/*
+/Content/LevelPrototyping/*
+/Content/ThirdPerson/*

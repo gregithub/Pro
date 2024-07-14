@@ -67,33 +67,8 @@ struct FProNoiseSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	float Persistence = 2.0f;
 
-	FVector NoiseVector(const FVector& Pos, const FProNoiseOffsets& Offsets) const
-	{
-		FVector Base = Pos * Frequency;
-		return FVector(
-			OctaveNoise(Base + Offsets.X),
-			OctaveNoise(Base + Offsets.Y),
-			OctaveNoise(Base + Offsets.Z)
-		) * Amplitude;
-	}
-
-	float OctaveNoise(const FVector& V) const
-	{
-		float NoiseValue = 0;
-		float LocalFrequency = Frequency;
-		float LocalAmplitude = Amplitude;
-		float MaxValue = 0;
-
-		for (int32 Octave = 0; Octave < Octaves; Octave++)
-		{
-			NoiseValue += FMath::PerlinNoise3D(V * LocalFrequency) * LocalAmplitude;
-
-			MaxValue  += LocalAmplitude;
-			LocalAmplitude *= Persistence;
-			LocalFrequency *= 2;
-		}
-		return NoiseValue/MaxValue;
-	}
+public:
+	bool IsValid() const { return true; };
 };
 
 UCLASS(ClassGroup = Pro, meta = (BlueprintSpawnableComponent))
@@ -114,16 +89,20 @@ public:
 	UProNoiseComponent();
 	void BeginPlay() override;
 
-	float SinglePerling(const FVector& InLocation);
+	float SinglePerling_Continentalness(const FVector& InLocation);
+	float SinglePerling_Erosion(const FVector& InLocation);
+	float SinglePerling_PeaksANdValleys(const FVector& InLocation);
 
-	const FProNoiseOffsets& GetNoiseOffsets() const { return NoiseOffsets; };
 	const UNoiseCurveSettings* GetNoiseCurveSettings() const { return NoiseCurveSettings; };
 protected:
 
-	// https://stackoverflow.com/questions/63211595/cubic-quintic-linear-interpolation
-	static float InterpQuintic(float t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+	float OctaveNoise(const FVector& V) const;
+
+	FVector NoiseVector(const FVector& Pos, const FProNoiseOffsets& Offsets) const;
 
 protected:
-	FRandomStream RandomStream;
-	FProNoiseOffsets NoiseOffsets;
+	FProNoiseOffsets NoiseOffsets_Continentalness;
+	FProNoiseOffsets NoiseOffsets_Erosion;
+	FProNoiseOffsets NoiseOffsets_PeaksAndValleys;
+
 };

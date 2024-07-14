@@ -3,12 +3,14 @@
 
 #include "Generation/Terrain/ProLandscapeChunk.h"
 #include "Generation/Noise/ProNoiseComponent.h"
+#include "PhysicsEngine/BodySetup.h"
 #include "KismetProceduralMeshLibrary.h"
 
 AProLandscapeChunk::AProLandscapeChunk()
 {
 	ProceduralMeshComponent = CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("ProceduralMeshComponent"));
 	SetRootComponent(ProceduralMeshComponent);
+	ProceduralMeshComponent->bUseComplexAsSimpleCollision = false;
 	ProceduralMeshComponent->SetCastShadow(false);
 	ProceduralMeshComponent->bUseAsyncCooking = true; //Async collision geometry
 
@@ -52,6 +54,10 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FGeneratedWorldLandscape
 
 	ProceduralMeshComponent->CreateMeshSection(LocalMeshSectionIndex, Vertices, Triangles, Normals, UVs, TArray<FColor>(), Tangents, false);
 
+	ProceduralMeshComponent->AddCollisionConvexMesh(Vertices);
+	
+	ProceduralMeshComponent->GetBodySetup()->CreatePhysicsMeshes();
+
 	TryApplyMaterial();
 }
 
@@ -65,17 +71,17 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 		{
 			const FVector GlobalVertexLocation = (FVector(InVertexLocation2D.X, InVertexLocation2D.Y, 0.0f) + FVector(GetActorLocation()));
 
-			float Noise_Continentalnes = ProNoiseComponent->SinglePerling(GlobalVertexLocation);
-			float Noise_Errosion = ProNoiseComponent->SinglePerling(GlobalVertexLocation);
-			float Noise_PeaksAndValleys = ProNoiseComponent->SinglePerling(GlobalVertexLocation);
+			float Noise_Continentalnes = ProNoiseComponent->SinglePerling_Continentalness(GlobalVertexLocation);
+			float Noise_Errosion = ProNoiseComponent->SinglePerling_Erosion(GlobalVertexLocation);
+			float Noise_PeaksAndValleys = ProNoiseComponent->SinglePerling_PeaksANdValleys(GlobalVertexLocation);
 
 			NoiseContinentalnessValues.Add(Noise_Continentalnes);
 			NoiseErosionValues.Add(Noise_Errosion);
 			NoisePeaksAndValleysValues.Add(Noise_PeaksAndValleys);
 
 			HeightValue = (
-				(NoiseCurveSettings->GetCurve_Continentalness()->GetFloatValue(Noise_Continentalnes)));/* +
-				(NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Errosion)) +
+				(NoiseCurveSettings->GetCurve_Continentalness()->GetFloatValue(Noise_Continentalnes)) +
+				(NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Errosion))); /* +
 				(NoiseCurveSettings->GetCurve_PeaksAndValleys()->GetFloatValue(Noise_PeaksAndValleys)));*/
 		}
 	}

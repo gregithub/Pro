@@ -4,11 +4,10 @@
 #include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
 #include "ProceduralMeshComponent.h"
 #include "Generation/Terrain/ProLandscapeChunk.h"
-#include "GameInstance/ProGameInstance.h"
+#include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameMode/ProGameModeBase.h"
 #include "KismetProceduralMeshLibrary.h"
-#include "LandscapeComponent.h"
+
 
 UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -18,39 +17,70 @@ UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObject
 void UProLandscapeGenerationComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentChunks.Empty();
 }
 
 void UProLandscapeGenerationComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bTempInitalizedChunks == false)
-	{
-		bTempInitalizedChunks = true;
-
-		TickUpdateRequestedChunks();
-	}
+	TickUpdateRequestedChunks();
 }
 
 void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 {
-	//Todo: this should be player coordinates
-	const FIntVector2 TempCordinates = FIntVector2(0, 0);
-
 	const FGeneratedWorldLandscapeSettings& CurrentLandscapeSettings = GetLandscapeSettings();
 
-	const int32 FirstChunkLocationX = (TempCordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
-	const int32 FirstChunkLocationY = (TempCordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
+	FIntVector2 CurrentCoordinates = FIntVector2(0, 0);
+
+	if (ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+	{
+		FVector2D PlayerLocation2D = FVector2D(PlayerCharacter->GetActorLocation());
+
+		CurrentCoordinates = FIntVector2((PlayerLocation2D.X / CurrentLandscapeSettings.Global_ChunkSize), (PlayerLocation2D.Y / CurrentLandscapeSettings.Global_ChunkSize));
+	}
+
+	const int32 FirstChunkLocationX = (CurrentCoordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
+	const int32 FirstChunkLocationY = (CurrentCoordinates.Y - (CurrentLandscapeSettings.Global_MapSize / 2));
+
+	TArray<FIntVector2> ChunksKeysToRemove;
+	CurrentChunks.GetKeys(ChunksKeysToRemove);
 
 	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + CurrentLandscapeSettings.Global_MapSize); CurrentRow++)
 	{
 		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + CurrentLandscapeSettings.Global_MapSize); CurrentColumn++)
 		{
+			const FIntVector2 CurrentChunkCoordinates = FIntVector2(CurrentRow, CurrentColumn);
+
+			if (ChunksKeysToRemove.Contains(CurrentChunkCoordinates))
+			{
+				ChunksKeysToRemove.Remove(CurrentChunkCoordinates);
+				continue;
+			}
+
 			const FVector ChunkLocation = FVector(float(CurrentRow * CurrentLandscapeSettings.Global_ChunkSize), float(CurrentColumn * CurrentLandscapeSettings.Global_ChunkSize), 0.0f);
 
 			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkLocation))
 			{
-				CurrentChunks.Add(FIntVector2(CurrentRow, CurrentColumn), CreatedChunk);
+				CurrentChunks.Add(CurrentChunkCoordinates, CreatedChunk);
+			}
+		}
+	}
+
+	if (ChunksKeysToRemove.Num() > 0)
+	{
+		for (int32 ChunkToRemoveIterator = 0; ChunkToRemoveIterator < ChunksKeysToRemove.Num(); ChunkToRemoveIterator++)
+		{
+			AProLandscapeChunk* ChunkToBeRemoved;
+
+			if (CurrentChunks.RemoveAndCopyValue(ChunksKeysToRemove[ChunkToRemoveIterator], ChunkToBeRemoved))
+			{
+				ChunkToBeRemoved->Destroy();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("RemoveChunk failed!"));
 			}
 		}
 	}

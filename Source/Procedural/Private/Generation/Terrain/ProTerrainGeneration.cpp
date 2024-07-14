@@ -27,25 +27,6 @@ void AProTerrainGeneration::Tick(float DeltaTime)
 
 void AProTerrainGeneration::RequestTerrainGeneration()
 {
-	if (ProLandscapeGenerationComponent == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ProLandscapeGenerationComponent is invalid!"));
-		return;
-	}
-	
-	if (ProLandscapeGenerationComponent->TryGenerateLandscapeSettings() == false)
-	{
-		UE_LOG(LogTemp, Error, TEXT("TryGenerateLandscapeSettings failed!"));
-		return;
-	}
-
-	const FGeneratedWorldLandscapeSettings& TerrainSettings = ProLandscapeGenerationComponent->GetLandscapeSettings();
-
-	if (TerrainSettings.IsValid() == false)
-	{
-		UE_LOG(LogTemp, Error, TEXT("TerrainSettings is invalid!"));
-		return;
-	}
 }
 
 void AProTerrainGeneration::CallInEditor_RegenerateTerrain()
