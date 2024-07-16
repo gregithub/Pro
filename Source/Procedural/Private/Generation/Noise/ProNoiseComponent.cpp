@@ -23,73 +23,54 @@ void UProNoiseComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FRandomStream RandomStream_Continentalness = FRandomStream(2);
-	FRandomStream RandomStream_Erosion = FRandomStream(3);
-	FRandomStream RandomStream_PeaksAndValleys = FRandomStream(4);
-
-	NoiseOffsets_Continentalness = FProNoiseOffsets(RandomStream_Continentalness);
-	NoiseOffsets_Erosion = FProNoiseOffsets(RandomStream_Erosion);
-	NoiseOffsets_PeaksAndValleys = FProNoiseOffsets(RandomStream_PeaksAndValleys);
+	NoiseSettings_Continentalness.GenerateOffsets(2);
+	NoiseSettings_Erosion.GenerateOffsets(3);
+	NoiseSettings_PeaksAndValleys.GenerateOffsets(4);
 }
 
-
-float UProNoiseComponent::SinglePerling_Continentalness(const FVector& InLocation)
+float UProNoiseComponent::SinglePerling(const FVector& InLocation, const FProNoiseSettings& InNoiseSettings)
 {
-	const FVector OffsetedVector = NoiseVector(InLocation, NoiseOffsets_Continentalness);
-
-	return OctaveNoise(OffsetedVector);
-}
-
-float UProNoiseComponent::SinglePerling_Erosion(const FVector& InLocation)
-{
-	const FVector OffsetedVector = NoiseVector(InLocation, NoiseOffsets_Erosion);
-
-	return OctaveNoise(OffsetedVector);
-}
-
-float UProNoiseComponent::SinglePerling_PeaksANdValleys(const FVector& InLocation)
-{
-	const FVector OffsetedVector = NoiseVector(InLocation, NoiseOffsets_PeaksAndValleys);
-
-	return OctaveNoise(OffsetedVector);
-}
-
-FVector UProNoiseComponent::NoiseVector(const FVector& Pos, const FProNoiseOffsets& Offsets) const
-{
-	if (NoiseSettings.IsValid() == false)
+	if (InNoiseSettings.IsValid() == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NoiseSettings is invalid!"));
-		return Pos;
+		return 0.0f;
 	}
 
-	FVector Base = Pos * NoiseSettings.Frequency;
-	return FVector(
-		OctaveNoise(Base + Offsets.X),
-		OctaveNoise(Base + Offsets.Y),
-		OctaveNoise(Base + Offsets.Z)
-	) * NoiseSettings.Amplitude;
+	const FVector OffsetedVector = NoiseVector(InLocation, InNoiseSettings);
+
+	return OctaveNoise(OffsetedVector, InNoiseSettings);
 }
 
-float UProNoiseComponent::OctaveNoise(const FVector& V) const
+FVector UProNoiseComponent::NoiseVector(const FVector& Pos, const FProNoiseSettings& InNoiseSettings) const
+{
+	FVector Base = Pos * InNoiseSettings.Frequency;
+	return FVector(
+		OctaveNoise(Base + InNoiseSettings.NoiseOffsets.X, InNoiseSettings),
+		OctaveNoise(Base + InNoiseSettings.NoiseOffsets.Y, InNoiseSettings),
+		OctaveNoise(Base + InNoiseSettings.NoiseOffsets.Z, InNoiseSettings)
+	) * InNoiseSettings.Amplitude;
+}
+
+float UProNoiseComponent::OctaveNoise(const FVector& Pos, const FProNoiseSettings& InNoiseSettings) const
 {
 	float NoiseValue = 0;
 
-	if (NoiseSettings.IsValid() == false)
+	if (InNoiseSettings.IsValid() == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NoiseSettings is invalid!"));
 		return NoiseValue;
 	}
 
-	float LocalFrequency = NoiseSettings.Frequency;
-	float LocalAmplitude = NoiseSettings.Amplitude;
+	float LocalFrequency = InNoiseSettings.Frequency;
+	float LocalAmplitude = InNoiseSettings.Amplitude;
 	float MaxValue = 0;
 
-	for (int32 Octave = 0; Octave < NoiseSettings.Octaves; Octave++)
+	for (int32 Octave = 0; Octave < InNoiseSettings.Octaves; Octave++)
 	{
-		NoiseValue += FMath::PerlinNoise3D(V * LocalFrequency) * LocalAmplitude;
+		NoiseValue += FMath::PerlinNoise3D(Pos * LocalFrequency) * LocalAmplitude;
 
 		MaxValue += LocalAmplitude;
-		LocalAmplitude *= NoiseSettings.Persistence;
+		LocalAmplitude *= InNoiseSettings.Persistence;
 		LocalFrequency *= 2;
 	}
 	return NoiseValue / MaxValue;

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Generation/Noise/ProNoiseComponent.h"
 #include "ProLandscapeGenerationComponent.generated.h"
 
 class AProLandscapeChunk;
@@ -22,9 +23,6 @@ struct FGeneratedWorldLandscapeSettings
 	float Global_ChunkSize = 400.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	float Global_UVScale = 10.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 ChunkVerticesPerAxis = 3;
 
 public:
@@ -37,10 +35,10 @@ class PROCEDURAL_API UProLandscapeGenerationComponent : public UActorComponent
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pro")
 	FGeneratedWorldLandscapeSettings LandscapeSettings;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Pro")
 	TSubclassOf<AProLandscapeChunk> ChunkClass;
 
 public:
@@ -52,12 +50,8 @@ public:
 
 	AProLandscapeChunk* RequestChunk(const FVector& InLocation);
 
-	bool TryGenerateLandscapeSettings();
-
 	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
 
 	TMap<FIntVector2, AProLandscapeChunk*> CurrentChunks;
-
-	bool bTempInitalizedChunks = false;
 
 };

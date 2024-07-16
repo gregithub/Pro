@@ -2,11 +2,9 @@
 
 
 #include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
-#include "ProceduralMeshComponent.h"
 #include "Generation/Terrain/ProLandscapeChunk.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
-#include "KismetProceduralMeshLibrary.h"
 
 
 UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -84,13 +82,6 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 			}
 		}
 	}
-}
-
-bool UProLandscapeGenerationComponent::TryGenerateLandscapeSettings()
-{
-	const int RandomSeed = FMath::RandRange(10000,99999);
-
-	return true;
 }
 
 AProLandscapeChunk* UProLandscapeGenerationComponent::RequestChunk(const FVector& InLocation)

@@ -12,7 +12,7 @@ AProLandscapeChunk::AProLandscapeChunk()
 	SetRootComponent(ProceduralMeshComponent);
 	ProceduralMeshComponent->bUseComplexAsSimpleCollision = false;
 	ProceduralMeshComponent->SetCastShadow(false);
-	ProceduralMeshComponent->bUseAsyncCooking = true; //Async collision geometry
+	ProceduralMeshComponent->bUseAsyncCooking = false; //Async collision geometry
 
 	PrimaryActorTick.bCanEverTick = false;
 }
@@ -36,14 +36,24 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FGeneratedWorldLandscape
 	{
 		for (int32 VertexY = 0; VertexY < InSettings.ChunkVerticesPerAxis; VertexY++)
 		{
-			const float VertexPosX = ((float)VertexX / (float)(InSettings.ChunkVerticesPerAxis - 1) * InSettings.Global_ChunkSize);
-			const float VertexPosY = ((float)VertexY / (float)(InSettings.ChunkVerticesPerAxis - 1) * InSettings.Global_ChunkSize);
-			const float Height = CalculateHeight(FVector2D(VertexPosX, VertexPosY));
+			const float VertexPosX = ((float)VertexX / (float)(InSettings.ChunkVerticesPerAxis - 1));
+			const float VertexPosY = ((float)VertexY / (float)(InSettings.ChunkVerticesPerAxis - 1));
 
-			Vertices.Add(FVector(VertexPosX, VertexPosY, Height));
-			UVs.Add(FVector2D((VertexPosX * InSettings.Global_UVScale), (VertexPosY * InSettings.Global_UVScale)));
+			const float GlobalVertexPosX = (VertexPosX * InSettings.Global_ChunkSize);
+			const float GlobalVertexPosY = (VertexPosY * InSettings.Global_ChunkSize);
+
+			const float Height = CalculateHeight(FVector2D(GlobalVertexPosX, GlobalVertexPosY));
+
+			Vertices.Add(FVector(GlobalVertexPosX, GlobalVertexPosY, Height));
+			UVs.Add(FVector2D((VertexPosX), (VertexPosY)));
 		}
 	}
+
+	/*FVector2D QuadCenter = FVector2D(((float)j + 0.5) / ((float)NumX), ((float)i + 0.5) / ((float)NumY));
+	UV1s.Add(QuadCenter);
+	UV1s.Add(QuadCenter);
+	UV1s.Add(QuadCenter);
+	UV1s.Add(QuadCenter);*/
 
 	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(InSettings.ChunkVerticesPerAxis, InSettings.ChunkVerticesPerAxis, false, Triangles);
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UVs, Normals, Tangents);
@@ -52,11 +62,9 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FGeneratedWorldLandscape
 
 	ProceduralMeshComponent->ClearMeshSection(LocalMeshSectionIndex);
 
-	ProceduralMeshComponent->CreateMeshSection(LocalMeshSectionIndex, Vertices, Triangles, Normals, UVs, TArray<FColor>(), Tangents, false);
-
 	ProceduralMeshComponent->AddCollisionConvexMesh(Vertices);
-	
-	ProceduralMeshComponent->GetBodySetup()->CreatePhysicsMeshes();
+
+	ProceduralMeshComponent->CreateMeshSection(LocalMeshSectionIndex, Vertices, Triangles, Normals, UVs, TArray<FColor>(), Tangents, true);
 
 	TryApplyMaterial();
 }
@@ -71,18 +79,44 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 		{
 			const FVector GlobalVertexLocation = (FVector(InVertexLocation2D.X, InVertexLocation2D.Y, 0.0f) + FVector(GetActorLocation()));
 
-			float Noise_Continentalnes = ProNoiseComponent->SinglePerling_Continentalness(GlobalVertexLocation);
-			float Noise_Errosion = ProNoiseComponent->SinglePerling_Erosion(GlobalVertexLocation);
-			float Noise_PeaksAndValleys = ProNoiseComponent->SinglePerling_PeaksANdValleys(GlobalVertexLocation);
+			{
+				const FProNoiseSettings& NoiseContinentalnessSettings = ProNoiseComponent->GetNoiseSettings_Continentalness();
+				
+				if (NoiseContinentalnessSettings.GetApplyNoise())
+				{
+					const float Noise_Continentalnes = ProNoiseComponent->SinglePerling(GlobalVertexLocation, NoiseContinentalnessSettings);
 
-			NoiseContinentalnessValues.Add(Noise_Continentalnes);
-			NoiseErosionValues.Add(Noise_Errosion);
-			NoisePeaksAndValleysValues.Add(Noise_PeaksAndValleys);
+					HeightValue += NoiseCurveSettings->GetCurve_Continentalness()->GetFloatValue(Noise_Continentalnes);
 
-			HeightValue = (
-				(NoiseCurveSettings->GetCurve_Continentalness()->GetFloatValue(Noise_Continentalnes)) +
-				(NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Errosion))); /* +
-				(NoiseCurveSettings->GetCurve_PeaksAndValleys()->GetFloatValue(Noise_PeaksAndValleys)));*/
+					NoiseContinentalnessValues.Add(Noise_Continentalnes);
+				}
+			}
+			
+			{
+				const FProNoiseSettings& NoiseErosionSettings = ProNoiseComponent->GetNoiseSettings_Erosion();
+
+				if (NoiseErosionSettings.GetApplyNoise())
+				{
+					const float Noise_Errosion = ProNoiseComponent->SinglePerling(GlobalVertexLocation, NoiseErosionSettings);
+
+					HeightValue += NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Errosion);
+
+					NoiseErosionValues.Add(Noise_Errosion);
+				}
+			}
+
+			{
+				const FProNoiseSettings& NoisePeaksAndValleysSettings = ProNoiseComponent->GetNoiseSettings_PeaksAndValleys();
+
+				if (NoisePeaksAndValleysSettings.GetApplyNoise())
+				{
+					const float Noise_PeaksAndValleys = ProNoiseComponent->SinglePerling(GlobalVertexLocation, NoisePeaksAndValleysSettings);
+
+					HeightValue += NoiseCurveSettings->GetCurve_PeaksAndValleys()->GetFloatValue(Noise_PeaksAndValleys);
+
+					NoisePeaksAndValleysValues.Add(Noise_PeaksAndValleys);
+				}
+			}
 		}
 	}
 
@@ -124,16 +158,16 @@ void AProLandscapeChunk::PrepareArrays(const int32 InVerticesNum)
 
 void AProLandscapeChunk::CallInEditor_PrintInfo()
 {
-	if(NoisePeaksAndValleysValues.Num() > 0)
+	if (NoiseContinentalnessValues.Num() > 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NoisePeaksAndValleysValues: "));
 
-		for (int32 i = 0; i< NoisePeaksAndValleysValues.Num(); i++)
+		for (int32 i = 0; i < NoiseContinentalnessValues.Num(); i++)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("%s:%s!"), *FString::FromInt(i),*FString::SanitizeFloat(NoisePeaksAndValleysValues[i]));
+			UE_LOG(LogTemp, Warning, TEXT("%s:%s!"), *FString::FromInt(i), *FString::SanitizeFloat(NoiseContinentalnessValues[i]));
 		}
 	}
-	
+
 	if (NoiseErosionValues.Num() > 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NoiseErosionValues: "));
@@ -143,7 +177,7 @@ void AProLandscapeChunk::CallInEditor_PrintInfo()
 			UE_LOG(LogTemp, Warning, TEXT("%s:%s!"), *FString::FromInt(i), *FString::SanitizeFloat(NoiseErosionValues[i]));
 		}
 	}
-	
+
 	if (NoisePeaksAndValleysValues.Num() > 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("NoisePeaksAndValleysValues: "));
