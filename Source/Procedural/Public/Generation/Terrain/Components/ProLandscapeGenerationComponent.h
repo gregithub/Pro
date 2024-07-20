@@ -15,12 +15,11 @@ struct FGeneratedWorldLandscapeSettings
 {
 	GENERATED_BODY()
 
-	//Todo: instead of 2d grid, use distance from player to make more oval terrain range
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 Global_MapSize = 40;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
-	float Global_ChunkSize = 400.0f;
+	float Global_ChunkSize = 1000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 ChunkVerticesPerAxis = 3;

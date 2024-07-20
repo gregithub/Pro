@@ -10,6 +10,7 @@
 UProLandscapeGenerationComponent::UProLandscapeGenerationComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickInterval = 0.5f;
 }
 
 void UProLandscapeGenerationComponent::BeginPlay()
@@ -45,10 +46,18 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 	TArray<FIntVector2> ChunksKeysToRemove;
 	CurrentChunks.GetKeys(ChunksKeysToRemove);
 
+	const float RadiusFromPlayer = (CurrentLandscapeSettings.Global_MapSize / 2);
+
 	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + CurrentLandscapeSettings.Global_MapSize); CurrentRow++)
 	{
 		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + CurrentLandscapeSettings.Global_MapSize); CurrentColumn++)
 		{
+			if (FVector2D::Distance(FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y), FVector2D(CurrentRow, CurrentColumn)) > RadiusFromPlayer)
+			{
+				// Create chunks based on direct radius from player.
+				continue;
+			}
+			
 			const FIntVector2 CurrentChunkCoordinates = FIntVector2(CurrentRow, CurrentColumn);
 
 			if (ChunksKeysToRemove.Contains(CurrentChunkCoordinates))
