@@ -15,8 +15,7 @@ class PROCEDURAL_API AProTerrainGeneration : public AActor
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	UProLandscapeGenerationComponent* ProLandscapeGenerationComponent = nullptr;
+
 
 protected:
 	UFUNCTION(CallInEditor, Category = Pro)
@@ -29,5 +28,4 @@ public:
 
 	void RequestTerrainGeneration();
 
-	UProLandscapeGenerationComponent* GetProWorldGenerationComponent() { return ProLandscapeGenerationComponent; };
 };

@@ -79,12 +79,14 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 		{
 			const FVector GlobalVertexLocation = (FVector(InVertexLocation2D.X, InVertexLocation2D.Y, 0.0f) + FVector(GetActorLocation()));
 
+			const FVector2D GlobalVertexLocation2D = FVector2D(GlobalVertexLocation.X, GlobalVertexLocation.Y);
+
 			{
 				const FProNoiseSettings& NoiseContinentalnessSettings = ProNoiseComponent->GetNoiseSettings_Continentalness();
 				
 				if (NoiseContinentalnessSettings.GetApplyNoise())
 				{
-					const float Noise_Continentalnes = ProNoiseComponent->SinglePerling(GlobalVertexLocation, NoiseContinentalnessSettings);
+					const float Noise_Continentalnes = ProNoiseComponent->CalcNoise2D(GlobalVertexLocation2D, NoiseContinentalnessSettings);
 
 					HeightValue += NoiseCurveSettings->GetCurve_Continentalness()->GetFloatValue(Noise_Continentalnes);
 
@@ -97,11 +99,11 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 
 				if (NoiseErosionSettings.GetApplyNoise())
 				{
-					const float Noise_Errosion = ProNoiseComponent->SinglePerling(GlobalVertexLocation, NoiseErosionSettings);
+					const float Noise_Erosion = ProNoiseComponent->CalcNoise2D(GlobalVertexLocation2D, NoiseErosionSettings);
 
-					HeightValue += NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Errosion);
+					HeightValue += NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Erosion);
 
-					NoiseErosionValues.Add(Noise_Errosion);
+					NoiseErosionValues.Add(Noise_Erosion);
 				}
 			}
 
@@ -110,7 +112,7 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 
 				if (NoisePeaksAndValleysSettings.GetApplyNoise())
 				{
-					const float Noise_PeaksAndValleys = ProNoiseComponent->SinglePerling(GlobalVertexLocation, NoisePeaksAndValleysSettings);
+					const float Noise_PeaksAndValleys = ProNoiseComponent->CalcNoise2D(GlobalVertexLocation2D, NoisePeaksAndValleysSettings);
 
 					HeightValue += NoiseCurveSettings->GetCurve_PeaksAndValleys()->GetFloatValue(Noise_PeaksAndValleys);
 

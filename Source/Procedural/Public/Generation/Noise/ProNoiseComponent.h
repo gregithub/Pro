@@ -118,7 +118,7 @@ public:
 	UProNoiseComponent();
 	void BeginPlay() override;
 
-	float SinglePerling(const FVector& InLocation, const FProNoiseSettings& InNoiseSettings);
+	float CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const;
 
 	const UNoiseCurveSettings* GetNoiseCurveSettings() const { return NoiseCurveSettings; };
 
@@ -128,8 +128,6 @@ public:
 
 protected:
 	float OctaveNoise2D(const FVector2D& Pos, const FProNoiseSettings& InNoiseSettings) const;
-
-	float ProNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const;
 
 	float ProPerlinNoise2D(const FVector2D& Location) const;
 

@@ -3,10 +3,13 @@
 
 #include "GameMode/ProGameModeBase.h"
 #include "Generation/Noise/ProNoiseComponent.h"
+#include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
 
 AProGameModeBase::AProGameModeBase()
 {
 	ProNoiseComponent = CreateDefaultSubobject<UProNoiseComponent>(TEXT("ProNoiseComponent"));
+
+	ProLandscapeGenerationComponent = CreateDefaultSubobject<UProLandscapeGenerationComponent>(TEXT("ProWorldGenerationComponent"));
 }
 
 void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) 
@@ -27,4 +30,13 @@ AProGameModeBase* AProGameModeBase::GetInstance(const UObject* const WorldContex
 	}
 
 	return nullptr;
+}
+
+
+void AProGameModeBase::RequestRecalculateTerrain()
+{
+	if (ProLandscapeGenerationComponent != nullptr)
+	{
+		ProLandscapeGenerationComponent->ClearAllChunks();
+	}
 }

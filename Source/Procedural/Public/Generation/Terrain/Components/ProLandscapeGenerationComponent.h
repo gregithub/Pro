@@ -47,10 +47,14 @@ public:
 
 	void TickUpdateRequestedChunks();
 
-	AProLandscapeChunk* RequestChunk(const FVector& InLocation);
-
 	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
 
+	void ClearAllChunks();
+
+protected:
+	AProLandscapeChunk* RequestChunk(const FVector& InLocation);
+
+protected:
 	TMap<FIntVector2, AProLandscapeChunk*> CurrentChunks;
 
 };

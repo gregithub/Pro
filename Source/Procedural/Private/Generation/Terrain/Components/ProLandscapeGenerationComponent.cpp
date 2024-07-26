@@ -48,6 +48,10 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 
 	const float RadiusFromPlayer = (CurrentLandscapeSettings.Global_MapSize / 2);
 
+	int32 NumOfCreatedChunksThisTick = 0;
+	TOptional<float> MinNoiseValue;
+	TOptional<float> MaxNoiseValue;
+
 	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + CurrentLandscapeSettings.Global_MapSize); CurrentRow++)
 	{
 		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + CurrentLandscapeSettings.Global_MapSize); CurrentColumn++)
@@ -70,6 +74,8 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 
 			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkLocation))
 			{
+				NumOfCreatedChunksThisTick++;
+
 				CurrentChunks.Add(CurrentChunkCoordinates, CreatedChunk);
 			}
 		}
@@ -111,4 +117,22 @@ AProLandscapeChunk* UProLandscapeGenerationComponent::RequestChunk(const FVector
 	}
 
 	return nullptr;
+}
+
+void UProLandscapeGenerationComponent::ClearAllChunks()
+{
+	if (CurrentChunks.Num() <= 0)
+	{
+		return;
+	}
+
+	for (TTuple<FIntVector2, AProLandscapeChunk*> MapTupple : CurrentChunks)
+	{
+		if (AProLandscapeChunk* ChunkToRemove = MapTupple.Value)
+		{
+			ChunkToRemove->Destroy();
+		}
+	}
+
+	CurrentChunks.Empty();
 }

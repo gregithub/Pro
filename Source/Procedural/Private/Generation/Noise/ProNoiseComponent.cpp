@@ -28,18 +28,7 @@ void UProNoiseComponent::BeginPlay()
 	NoiseSettings_PeaksAndValleys.GenerateOffsets(4);
 }
 
-float UProNoiseComponent::SinglePerling(const FVector& InLocation, const FProNoiseSettings& InNoiseSettings)
-{
-	if (InNoiseSettings.IsValid() == false)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NoiseSettings is invalid!"));
-		return 0.0f;
-	}
-
-	return ProNoise2D(FVector2D(InLocation.X, InLocation.Y), InNoiseSettings);
-}
-
-float UProNoiseComponent::ProNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const
+float UProNoiseComponent::CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const
 {
 	float NoiseValue = 0.0f; 
 

@@ -12,7 +12,6 @@ AProTerrainGeneration::AProTerrainGeneration()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	ProLandscapeGenerationComponent = CreateDefaultSubobject<UProLandscapeGenerationComponent>(TEXT("ProWorldGenerationComponent"));
 }
 
 void AProTerrainGeneration::BeginPlay()
