@@ -5,6 +5,14 @@
 #include "Components/ActorComponent.h"
 #include "ProNoiseComponent.generated.h"
 
+UENUM(BlueprintType)
+enum class ENoiseTerrainType : uint8
+{
+	Continentalness = 0,
+	Erosion = 1,
+	PeaksAndValleys = 2,
+};
+
 UCLASS(BlueprintType)
 class PROCEDURAL_API UNoiseCurveSettings : public UDataAsset
 {
@@ -21,6 +29,7 @@ class PROCEDURAL_API UNoiseCurveSettings : public UDataAsset
 	// Used for generating better peaks and valleys. Higher the value, higher the terrain.
 	UPROPERTY(EditDefaultsOnly, Category = "Pro")
 	UCurveFloat* Curve_PeaksAndValleys = nullptr;
+
 public:
 	const UCurveFloat* GetCurve_Continentalness() const { return Curve_Continentalness; };
 	const UCurveFloat* GetCurve_Erosion() const { return Curve_Erosion; };

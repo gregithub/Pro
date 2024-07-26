@@ -191,3 +191,79 @@ void AProLandscapeChunk::CallInEditor_PrintInfo()
 	}
 
 }
+
+float AProLandscapeChunk::GetMinNoiseTypeValue(const ENoiseTerrainType InNoiseTerrainType) const
+{
+	float MinValue = 2.0f;
+
+	TArray<float> ValuesToCheck;
+
+	switch (InNoiseTerrainType)
+	{
+	case ENoiseTerrainType::Continentalness:
+	{
+		ValuesToCheck = NoiseContinentalnessValues;
+	}
+	break;
+	case ENoiseTerrainType::Erosion:
+	{
+		ValuesToCheck = NoiseErosionValues;
+	}
+	break;
+	case ENoiseTerrainType::PeaksAndValleys:
+	{
+		ValuesToCheck = NoisePeaksAndValleysValues;
+	}
+	break;
+	default:
+		break;
+	}
+
+	for (float ValueToCheck : ValuesToCheck)
+	{
+		if (ValueToCheck < MinValue)
+		{
+			MinValue = ValueToCheck;
+		}
+	}
+
+	return MinValue;
+}
+
+float AProLandscapeChunk::GetMaxNoiseTypeValue(const ENoiseTerrainType InNoiseTerrainType) const
+{
+	float MaxValue = -2.0f;
+
+	TArray<float> ValuesToCheck;
+
+	switch (InNoiseTerrainType)
+	{
+	case ENoiseTerrainType::Continentalness:
+	{
+		ValuesToCheck = NoiseContinentalnessValues;
+	}
+	break;
+	case ENoiseTerrainType::Erosion:
+	{
+		ValuesToCheck = NoiseErosionValues;
+	}
+	break;
+	case ENoiseTerrainType::PeaksAndValleys:
+	{
+		ValuesToCheck = NoisePeaksAndValleysValues;
+	}
+	break;
+	default:
+		break;
+	}
+
+	for (float ValueToCheck : ValuesToCheck)
+	{
+		if (ValueToCheck > MaxValue)
+		{
+			MaxValue = ValueToCheck;
+		}
+	}
+
+	return MaxValue;
+}

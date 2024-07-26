@@ -74,10 +74,36 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 
 			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkLocation))
 			{
-				NumOfCreatedChunksThisTick++;
+				if (bDebugNoiseValues)
+				{
+					NumOfCreatedChunksThisTick++;
 
+					if (const float ChunkMinNoiseValue = CreatedChunk->GetMinNoiseTypeValue(ENoiseTerrainType::Continentalness))
+					{
+						if ((MinNoiseValue.IsSet() == false) || (ChunkMinNoiseValue < MinNoiseValue.GetValue()))
+						{
+							MinNoiseValue = ChunkMinNoiseValue;
+						}
+
+						if ((MaxNoiseValue.IsSet() == false) || (ChunkMinNoiseValue > MaxNoiseValue.GetValue()))
+						{
+							MaxNoiseValue = ChunkMinNoiseValue;
+						}
+					}
+				}
+				
 				CurrentChunks.Add(CurrentChunkCoordinates, CreatedChunk);
 			}
+		}
+	}
+
+	if (bDebugNoiseValues)
+	{
+		if (NumOfCreatedChunksThisTick > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Continentalness - MinNoiseValue: %s; MaxNoiseValue: %s!"), 
+				((MinNoiseValue.IsSet()) ? (*FString::SanitizeFloat(MinNoiseValue.GetValue())) :( *FString("Invalid value"))),
+				((MaxNoiseValue.IsSet()) ? (*FString::SanitizeFloat(MaxNoiseValue.GetValue())) : (*FString("Invalid value"))));
 		}
 	}
 

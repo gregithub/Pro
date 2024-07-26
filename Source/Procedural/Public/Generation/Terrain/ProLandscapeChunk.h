@@ -35,6 +35,15 @@ public:
 
 	UProceduralMeshComponent* GetProceduralMeshComponent() { return ProceduralMeshComponent; };
 
+	float GetMinNoiseTypeValue(const ENoiseTerrainType InNoiseTerrainType) const;
+	float GetMaxNoiseTypeValue(const ENoiseTerrainType InNoiseTerrainType) const;
+
+protected:
+	void PrepareArrays(const int32 InVerticesNum);
+
+	float CalculateHeight(const FVector2D& InVertexLocation);
+
+protected:
 	TArray<FVector> Vertices;
 	TArray<int32> Triangles;
 	TArray<FVector2D> UVs;
@@ -44,10 +53,5 @@ public:
 	TArray<float> NoiseContinentalnessValues;
 	TArray<float> NoiseErosionValues;
 	TArray<float> NoisePeaksAndValleysValues;
-
-protected:
-	void PrepareArrays(const int32 InVerticesNum);
-
-	float CalculateHeight(const FVector2D& InVertexLocation);
 
 };

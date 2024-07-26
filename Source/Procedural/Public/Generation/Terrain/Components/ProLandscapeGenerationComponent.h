@@ -57,4 +57,5 @@ protected:
 protected:
 	TMap<FIntVector2, AProLandscapeChunk*> CurrentChunks;
 
+	bool bDebugNoiseValues = true;
 };
