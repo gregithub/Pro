@@ -6,6 +6,7 @@
 #include "Generation/Noise/ProNoiseComponent.h"
 #include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/WaterFollowingComponent.h"
 
 AProGameModeBase::AProGameModeBase()
 {
@@ -22,6 +23,10 @@ void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 void AProGameModeBase::InitGameState()
 {
 	Super::InitGameState();
+
+	if (GameSession != nullptr)
+	{		
+	}
 }
 
 AProGameModeBase* AProGameModeBase::GetInstance(const UObject* const WorldContextObject)

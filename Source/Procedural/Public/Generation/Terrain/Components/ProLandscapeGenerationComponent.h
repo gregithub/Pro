@@ -15,6 +15,10 @@ struct FGeneratedWorldLandscapeSettings
 {
 	GENERATED_BODY()
 
+	// Create chunks based on direct radius from player.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro) 
+	bool bUseRadiusFromPlayer = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 Global_MapSize = 40;
 
@@ -28,13 +32,15 @@ public:
 	bool IsValid() const { return (ChunkVerticesPerAxis >= 2); };
 };
 
+DECLARE_MULTICAST_DELEGATE_OneParam(FLandscapeGenerationEvent, UProLandscapeGenerationComponent*);
+
 UCLASS(BlueprintType, ClassGroup = (Pro), meta = (BlueprintSpawnableComponent))
 class PROCEDURAL_API UProLandscapeGenerationComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Pro")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pro")
 	FGeneratedWorldLandscapeSettings LandscapeSettings;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Pro")
@@ -47,9 +53,13 @@ public:
 
 	void TickUpdateRequestedChunks();
 
-	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
+	FLandscapeGenerationEvent OnCoordinatesChanged;
 
 	void ClearAllChunks();
+
+	FVector GetCurrentCenterPosition() const;
+	
+	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
 
 protected:
 	AProLandscapeChunk* RequestChunk(const FVector& InLocation);
@@ -58,4 +68,7 @@ protected:
 	TMap<FIntVector2, AProLandscapeChunk*> CurrentChunks;
 
 	bool bDebugNoiseValues = true;
+
+	TOptional<FIntVector2> LastCoordinates;
+
 };

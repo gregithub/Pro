@@ -180,6 +180,15 @@ void AProLandscapeChunk::CallInEditor_PrintInfo()
 		}
 	}
 
+	if (Vertices.Num() > 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Vertices height: "));
+
+		for (int32 i = 0; i < Vertices.Num(); i++)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s:%s!"), *FString::FromInt(i), *FString::SanitizeFloat(Vertices[i].Z));
+		}
+	}
 }
 
 float AProLandscapeChunk::GetMinNoiseTypeValue(const ENoiseTerrainType InNoiseTerrainType) const

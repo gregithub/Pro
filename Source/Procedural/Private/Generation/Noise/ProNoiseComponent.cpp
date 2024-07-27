@@ -73,12 +73,12 @@ float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const FProNoiseSet
 	{
 		NoiseValue += ProPerlinNoise2D(Pos * LocalFrequency) * LocalAmplitude;
 
-		MaxValue += LocalAmplitude;
-		LocalAmplitude *= InNoiseSettings.Persistence;
+		//MaxValue += LocalAmplitude;
+		LocalAmplitude *= 0.5f;//InNoiseSettings.Persistence;
 		LocalFrequency *= 2;
 	}
 
-	return (NoiseValue / MaxValue);
+	return NoiseValue;//(NoiseValue / MaxValue);
 }
 
 float UProNoiseComponent::ProPerlinNoise2D(const FVector2D& Location) const
@@ -100,7 +100,6 @@ float UProNoiseComponent::ProPerlinNoise2D(const FVector2D& Location) const
 	float U = Fade(X);
 	float V = Fade(Y);
 
-	// Note: Due to the choice of Grad2, this will be in the (-1,1) range with no additional scaling
 	return FMath::Lerp(
 		FMath::Lerp(Grad2(Permutation[AA], X, Y), Grad2(Permutation[BA], Xm1, Y), U),
 		FMath::Lerp(Grad2(Permutation[AB], X, Ym1), Grad2(Permutation[BB], Xm1, Ym1), U),
@@ -123,6 +122,11 @@ float UProNoiseComponent::Grad2(int32 Hash, float X, float Y) const
 		// can't happen
 	default: return 0;
 	}
+}
+
+float UProNoiseComponent::Fade(const float InValue) const
+{
+	return (InValue * InValue * InValue * (InValue * (InValue * 6 - 15) + 10)); // 6t^5 - 15t^4 + 10t^3
 }
 
 const FProNoiseSettings& UProNoiseComponent::GetNoiseSettingsType(const ENoiseTerrainType InTerrainType) const

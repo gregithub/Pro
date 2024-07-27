@@ -40,6 +40,16 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 		CurrentCoordinates = FIntVector2((PlayerLocation2D.X / CurrentLandscapeSettings.Global_ChunkSize), (PlayerLocation2D.Y / CurrentLandscapeSettings.Global_ChunkSize));
 	}
 
+	if ((LastCoordinates.IsSet()) && (LastCoordinates.GetValue() == CurrentCoordinates))
+	{
+		//Position didn't change, no need for update.
+		return;
+	}
+
+	LastCoordinates = CurrentCoordinates;
+
+	OnCoordinatesChanged.Broadcast(this);
+
 	const int32 FirstChunkLocationX = (CurrentCoordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
 	const int32 FirstChunkLocationY = (CurrentCoordinates.Y - (CurrentLandscapeSettings.Global_MapSize / 2));
 
@@ -56,10 +66,12 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 	{
 		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + CurrentLandscapeSettings.Global_MapSize); CurrentColumn++)
 		{
-			if (FVector2D::Distance(FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y), FVector2D(CurrentRow, CurrentColumn)) > RadiusFromPlayer)
+			if (CurrentLandscapeSettings.bUseRadiusFromPlayer)
 			{
-				// Create chunks based on direct radius from player.
-				continue;
+				if (FVector2D::Distance(FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y), FVector2D(CurrentRow, CurrentColumn)) > RadiusFromPlayer)
+				{
+					continue;
+				}
 			}
 			
 			const FIntVector2 CurrentChunkCoordinates = FIntVector2(CurrentRow, CurrentColumn);
@@ -84,10 +96,13 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 						{
 							MinNoiseValue = ChunkMinNoiseValue;
 						}
+					}
 
-						if ((MaxNoiseValue.IsSet() == false) || (ChunkMinNoiseValue > MaxNoiseValue.GetValue()))
+					if (const float ChunkMaxNoiseValue = CreatedChunk->GetMaxNoiseTypeValue(ENoiseTerrainType::Continentalness))
+					{
+						if ((MaxNoiseValue.IsSet() == false) || (ChunkMaxNoiseValue > MaxNoiseValue.GetValue()))
 						{
-							MaxNoiseValue = ChunkMinNoiseValue;
+							MaxNoiseValue = ChunkMaxNoiseValue;
 						}
 					}
 				}
@@ -163,4 +178,15 @@ void UProLandscapeGenerationComponent::ClearAllChunks()
 	}
 
 	CurrentChunks.Empty();
+	LastCoordinates.Reset();
+}
+
+FVector UProLandscapeGenerationComponent::GetCurrentCenterPosition() const
+{
+	if (LastCoordinates.IsSet())
+	{
+		return FVector(LastCoordinates.GetValue().X * GetLandscapeSettings().Global_ChunkSize, LastCoordinates.GetValue().Y * GetLandscapeSettings().Global_ChunkSize, 0.0f);
+	}
+
+	return FVector::ZeroVector;
 }

@@ -163,10 +163,7 @@ protected:
 
 	float ProPerlinNoise2D(const FVector2D& Location) const;
 
-	float Fade(const float InValue) const
-	{
-		return (InValue * InValue * InValue * (InValue * (InValue * 6 - 15) + 10)); // 6t^5 - 15t^4 + 10t^3
-	}
+	float Fade(const float InValue) const;
 
 	float Grad2(int32 Hash, float X, float Y) const;
 

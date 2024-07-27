@@ -9,6 +9,7 @@
 class UProWorldGenerationComponent;
 class UProNoiseComponent;
 class UProLandscapeGenerationComponent;
+class UWaterFollowingComponent;
 
 UCLASS()
 class PROCEDURAL_API AProGameModeBase : public AGameMode
@@ -37,4 +38,5 @@ public:
 	UProNoiseComponent& GetProNoiseComponent() const { return *ProNoiseComponent; };
 
 	UProLandscapeGenerationComponent* GetProLandscapeGenerationComponent() { return ProLandscapeGenerationComponent; };
+
 };
