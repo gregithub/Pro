@@ -31,6 +31,25 @@ class PROCEDURAL_API UNoiseCurveSettings : public UDataAsset
 	UCurveFloat* Curve_PeaksAndValleys = nullptr;
 
 public:
+	const UCurveFloat* GetNoiseCurveType(const ENoiseTerrainType InTerrainType) const
+	{
+		switch (InTerrainType)
+		{
+		case ENoiseTerrainType::Continentalness:
+			return GetCurve_Continentalness();
+			break;
+		case ENoiseTerrainType::Erosion:
+			return GetCurve_Erosion();
+			break;
+		case ENoiseTerrainType::PeaksAndValleys:
+			return GetCurve_PeaksAndValleys();
+			break;
+		default:
+			break;
+		}
+		return nullptr;
+	}
+
 	const UCurveFloat* GetCurve_Continentalness() const { return Curve_Continentalness; };
 	const UCurveFloat* GetCurve_Erosion() const { return Curve_Erosion; };
 	const UCurveFloat* GetCurve_PeaksAndValleys() const { return Curve_PeaksAndValleys; };
@@ -127,15 +146,19 @@ public:
 	UProNoiseComponent();
 	void BeginPlay() override;
 
-	float CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const;
+	float GetNoiseTerrainTypeValue(const FVector2D& InLocation, const ENoiseTerrainType InNoiseTerrainType);
 
 	const UNoiseCurveSettings* GetNoiseCurveSettings() const { return NoiseCurveSettings; };
+
+	const FProNoiseSettings& GetNoiseSettingsType(const ENoiseTerrainType InTerrainType) const;
 
 	const FProNoiseSettings& GetNoiseSettings_Continentalness()  const { return NoiseSettings_Continentalness; };
 	const FProNoiseSettings& GetNoiseSettings_Erosion()  const { return NoiseSettings_Erosion; };
 	const FProNoiseSettings& GetNoiseSettings_PeaksAndValleys() const { return NoiseSettings_PeaksAndValleys; };
 
 protected:
+	float CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const;
+
 	float OctaveNoise2D(const FVector2D& Pos, const FProNoiseSettings& InNoiseSettings) const;
 
 	float ProPerlinNoise2D(const FVector2D& Location) const;

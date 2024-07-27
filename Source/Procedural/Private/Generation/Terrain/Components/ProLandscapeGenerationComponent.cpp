@@ -101,6 +101,8 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 	{
 		if (NumOfCreatedChunksThisTick > 0)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("NumOfCreatedChunksThisTick: %s"), *FString::FromInt(NumOfCreatedChunksThisTick));
+
 			UE_LOG(LogTemp, Warning, TEXT("Continentalness - MinNoiseValue: %s; MaxNoiseValue: %s!"), 
 				((MinNoiseValue.IsSet()) ? (*FString::SanitizeFloat(MinNoiseValue.GetValue())) :( *FString("Invalid value"))),
 				((MaxNoiseValue.IsSet()) ? (*FString::SanitizeFloat(MaxNoiseValue.GetValue())) : (*FString("Invalid value"))));

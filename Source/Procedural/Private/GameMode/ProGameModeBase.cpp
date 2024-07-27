@@ -2,8 +2,10 @@
 
 
 #include "GameMode/ProGameModeBase.h"
+#include "GameFramework/Character.h"
 #include "Generation/Noise/ProNoiseComponent.h"
 #include "Generation/Terrain/Components/ProLandscapeGenerationComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 AProGameModeBase::AProGameModeBase()
 {
@@ -38,5 +40,10 @@ void AProGameModeBase::RequestRecalculateTerrain()
 	if (ProLandscapeGenerationComponent != nullptr)
 	{
 		ProLandscapeGenerationComponent->ClearAllChunks();
+
+		if (ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+		{
+			PlayerCharacter->SetActorLocation(FVector(0.0f, 0.0f, 10000.0f));
+		}
 	}
 }

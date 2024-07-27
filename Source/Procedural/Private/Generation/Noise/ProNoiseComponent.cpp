@@ -28,6 +28,18 @@ void UProNoiseComponent::BeginPlay()
 	NoiseSettings_PeaksAndValleys.GenerateOffsets(4);
 }
 
+float UProNoiseComponent::GetNoiseTerrainTypeValue(const FVector2D& InLocation, const ENoiseTerrainType InNoiseTerrainType)
+{
+	const FProNoiseSettings& NoiseTypeSettings = GetNoiseSettingsType(InNoiseTerrainType);
+
+	if (NoiseTypeSettings.IsValid() && (NoiseTypeSettings.GetApplyNoise()))
+	{
+		return CalcNoise2D(InLocation, NoiseTypeSettings);
+	}
+
+	return 0.0f;
+}
+
 float UProNoiseComponent::CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const
 {
 	float NoiseValue = 0.0f; 
@@ -111,4 +123,26 @@ float UProNoiseComponent::Grad2(int32 Hash, float X, float Y) const
 		// can't happen
 	default: return 0;
 	}
+}
+
+const FProNoiseSettings& UProNoiseComponent::GetNoiseSettingsType(const ENoiseTerrainType InTerrainType) const
+{
+	switch (InTerrainType)
+	{
+	case ENoiseTerrainType::Continentalness:
+		return GetNoiseSettings_Continentalness();
+		break;
+	case ENoiseTerrainType::Erosion:
+		return GetNoiseSettings_Erosion();
+		break;
+	case ENoiseTerrainType::PeaksAndValleys:
+		return GetNoiseSettings_PeaksAndValleys();
+		break;
+	default:
+		break;
+	}
+
+	// Should never happen;
+	ensure(false);
+	return GetNoiseSettings_Continentalness();
 }

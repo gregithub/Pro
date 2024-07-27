@@ -30,14 +30,16 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FGeneratedWorldLandscape
 		return;
 	}
 
-	PrepareArrays(InSettings.ChunkVerticesPerAxis);
+	const int32 LocalChunkVerticesPerAxis = InSettings.ChunkVerticesPerAxis;
 
-	for (int32 VertexX = 0; VertexX < InSettings.ChunkVerticesPerAxis; VertexX++)
+	PrepareArrays(LocalChunkVerticesPerAxis);
+
+	for (int32 VertexX = 0; VertexX < LocalChunkVerticesPerAxis; VertexX++)
 	{
-		for (int32 VertexY = 0; VertexY < InSettings.ChunkVerticesPerAxis; VertexY++)
+		for (int32 VertexY = 0; VertexY < LocalChunkVerticesPerAxis; VertexY++)
 		{
-			const float VertexPosX = ((float)VertexX / (float)(InSettings.ChunkVerticesPerAxis - 1));
-			const float VertexPosY = ((float)VertexY / (float)(InSettings.ChunkVerticesPerAxis - 1));
+			const float VertexPosX = ((float)VertexX / (float)(LocalChunkVerticesPerAxis - 1));
+			const float VertexPosY = ((float)VertexY / (float)(LocalChunkVerticesPerAxis - 1));
 
 			const float GlobalVertexPosX = (VertexPosX * InSettings.Global_ChunkSize);
 			const float GlobalVertexPosY = (VertexPosY * InSettings.Global_ChunkSize);
@@ -81,43 +83,31 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 
 			const FVector2D GlobalVertexLocation2D = FVector2D(GlobalVertexLocation.X, GlobalVertexLocation.Y);
 
+			if (const UCurveFloat* NoiseCurveFloat = NoiseCurveSettings->GetNoiseCurveType(ENoiseTerrainType::Continentalness))
 			{
-				const FProNoiseSettings& NoiseContinentalnessSettings = ProNoiseComponent->GetNoiseSettings_Continentalness();
-				
-				if (NoiseContinentalnessSettings.GetApplyNoise())
-				{
-					const float Noise_Continentalnes = ProNoiseComponent->CalcNoise2D(GlobalVertexLocation2D, NoiseContinentalnessSettings);
+				const float ContinentalnessNoiseValue = ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ENoiseTerrainType::Continentalness);
 
-					HeightValue += NoiseCurveSettings->GetCurve_Continentalness()->GetFloatValue(Noise_Continentalnes);
+				HeightValue += NoiseCurveFloat->GetFloatValue(ContinentalnessNoiseValue);
 
-					NoiseContinentalnessValues.Add(Noise_Continentalnes);
-				}
-			}
-			
-			{
-				const FProNoiseSettings& NoiseErosionSettings = ProNoiseComponent->GetNoiseSettings_Erosion();
-
-				if (NoiseErosionSettings.GetApplyNoise())
-				{
-					const float Noise_Erosion = ProNoiseComponent->CalcNoise2D(GlobalVertexLocation2D, NoiseErosionSettings);
-
-					HeightValue += NoiseCurveSettings->GetCurve_Erosion()->GetFloatValue(Noise_Erosion);
-
-					NoiseErosionValues.Add(Noise_Erosion);
-				}
+				NoiseContinentalnessValues.Add(ContinentalnessNoiseValue);
 			}
 
+			if (const UCurveFloat* NoiseCurveFloat = NoiseCurveSettings->GetNoiseCurveType(ENoiseTerrainType::Erosion))
 			{
-				const FProNoiseSettings& NoisePeaksAndValleysSettings = ProNoiseComponent->GetNoiseSettings_PeaksAndValleys();
+				const float ErosionNoiseValue = ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ENoiseTerrainType::Erosion);
 
-				if (NoisePeaksAndValleysSettings.GetApplyNoise())
-				{
-					const float Noise_PeaksAndValleys = ProNoiseComponent->CalcNoise2D(GlobalVertexLocation2D, NoisePeaksAndValleysSettings);
+				HeightValue += NoiseCurveFloat->GetFloatValue(ErosionNoiseValue);
 
-					HeightValue += NoiseCurveSettings->GetCurve_PeaksAndValleys()->GetFloatValue(Noise_PeaksAndValleys);
+				NoiseErosionValues.Add(ErosionNoiseValue);
+			}
 
-					NoisePeaksAndValleysValues.Add(Noise_PeaksAndValleys);
-				}
+			if (const UCurveFloat* NoiseCurveFloat = NoiseCurveSettings->GetNoiseCurveType(ENoiseTerrainType::PeaksAndValleys))
+			{
+				const float PeaksAndValleysNoiseValue = ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ENoiseTerrainType::PeaksAndValleys);
+
+				HeightValue += NoiseCurveFloat->GetFloatValue(PeaksAndValleysNoiseValue);
+
+				NoisePeaksAndValleysValues.Add(PeaksAndValleysNoiseValue);
 			}
 		}
 	}
