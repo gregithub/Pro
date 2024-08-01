@@ -48,7 +48,9 @@ void AProGameModeBase::RequestRecalculateTerrain()
 
 		if (ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
 		{
-			PlayerCharacter->SetActorLocation(FVector(0.0f, 0.0f, 10000.0f));
+			const FVector CurrentPlayerLocation = PlayerCharacter->GetActorLocation();
+
+			PlayerCharacter->SetActorLocation(FVector(CurrentPlayerLocation.X, CurrentPlayerLocation.Y, 10000.0f));
 		}
 	}
 }

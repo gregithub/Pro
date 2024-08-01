@@ -102,10 +102,7 @@ struct FProNoiseSettings
 	int32 Octaves = 4;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pro|Noise")
-	float Persistence = 2.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pro|Noise")
-	FVector2D VectorOffset = FVector2D(0.5f, 0.5f);
+	float Persistence = 0.5f;
 
 	FProNoiseOffsets NoiseOffsets;
 

@@ -50,9 +50,7 @@ float UProNoiseComponent::CalcNoise2D(const FVector2D& InLocation, const FProNoi
 		return NoiseValue;
 	}
 
-	const FVector2D OffsettedVector = InLocation + InNoiseSettings.VectorOffset;
-
-	return OctaveNoise2D(OffsettedVector, InNoiseSettings);
+	return OctaveNoise2D(InLocation, InNoiseSettings);
 }
 
 float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const FProNoiseSettings& InNoiseSettings) const
@@ -71,14 +69,14 @@ float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const FProNoiseSet
 
 	for (int32 Octave = 0; Octave < InNoiseSettings.Octaves; Octave++)
 	{
-		NoiseValue += ProPerlinNoise2D(Pos * LocalFrequency) * LocalAmplitude;
+		NoiseValue += ProPerlinNoise2D(Pos  * LocalFrequency) * LocalAmplitude;
 
 		//MaxValue += LocalAmplitude;
-		LocalAmplitude *= 0.5f;//InNoiseSettings.Persistence;
+		LocalAmplitude *= InNoiseSettings.Persistence;
 		LocalFrequency *= 2;
 	}
 
-	return NoiseValue;//(NoiseValue / MaxValue);
+	return FMath::Clamp(NoiseValue, -1.0f, 1.0f);//(NoiseValue / MaxValue);
 }
 
 float UProNoiseComponent::ProPerlinNoise2D(const FVector2D& Location) const
