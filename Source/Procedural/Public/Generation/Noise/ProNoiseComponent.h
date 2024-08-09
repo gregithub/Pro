@@ -147,6 +147,8 @@ public:
 
 	const UNoiseCurveSettings* GetNoiseCurveSettings() const { return NoiseCurveSettings; };
 
+	const float GetWorldHeightValueFromNoise(const float InNoiseValue, const ENoiseTerrainType InNoiseTerrainType) const;
+
 	const FProNoiseSettings& GetNoiseSettingsType(const ENoiseTerrainType InTerrainType) const;
 
 	const FProNoiseSettings& GetNoiseSettings_Continentalness()  const { return NoiseSettings_Continentalness; };

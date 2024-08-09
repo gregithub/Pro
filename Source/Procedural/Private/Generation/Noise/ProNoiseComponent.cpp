@@ -32,7 +32,7 @@ float UProNoiseComponent::GetNoiseTerrainTypeValue(const FVector2D& InLocation, 
 {
 	const FProNoiseSettings& NoiseTypeSettings = GetNoiseSettingsType(InNoiseTerrainType);
 
-	if (NoiseTypeSettings.IsValid() && (NoiseTypeSettings.GetApplyNoise()))
+	if (NoiseTypeSettings.IsValid())
 	{
 		return CalcNoise2D(InLocation, NoiseTypeSettings);
 	}
@@ -65,18 +65,16 @@ float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const FProNoiseSet
 
 	float LocalFrequency = InNoiseSettings.Frequency;
 	float LocalAmplitude = InNoiseSettings.Amplitude;
-	float MaxValue = 0.0f;
 
 	for (int32 Octave = 0; Octave < InNoiseSettings.Octaves; Octave++)
 	{
 		NoiseValue += ProPerlinNoise2D(Pos  * LocalFrequency) * LocalAmplitude;
 
-		//MaxValue += LocalAmplitude;
 		LocalAmplitude *= InNoiseSettings.Persistence;
 		LocalFrequency *= 2;
 	}
 
-	return FMath::Clamp(NoiseValue, -1.0f, 1.0f);//(NoiseValue / MaxValue);
+	return FMath::Clamp(NoiseValue, -1.0f, 1.0f);
 }
 
 float UProNoiseComponent::ProPerlinNoise2D(const FVector2D& Location) const
@@ -125,6 +123,24 @@ float UProNoiseComponent::Grad2(int32 Hash, float X, float Y) const
 float UProNoiseComponent::Fade(const float InValue) const
 {
 	return (InValue * InValue * InValue * (InValue * (InValue * 6 - 15) + 10)); // 6t^5 - 15t^4 + 10t^3
+}
+
+const float UProNoiseComponent::GetWorldHeightValueFromNoise(const float InNoiseValue, const ENoiseTerrainType InNoiseTerrainType) const
+{
+	float ReturnValue = 0.0f;
+
+	if (NoiseCurveSettings == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetNoiseCurveSettings is invalid!"));
+		return ReturnValue;
+	}
+
+	if (const UCurveFloat* NoiseCurveFloat = NoiseCurveSettings->GetNoiseCurveType(InNoiseTerrainType))
+	{
+		ReturnValue = NoiseCurveFloat->GetFloatValue(InNoiseValue);
+	}
+
+	return ReturnValue;
 }
 
 const FProNoiseSettings& UProNoiseComponent::GetNoiseSettingsType(const ENoiseTerrainType InTerrainType) const
