@@ -76,20 +76,23 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 	float HeightValue = 0.0f;
 
 	if (UProNoiseComponent* ProNoiseComponent = UProNoiseComponent::GetInstance(this))
-	{
-		
-		const FVector GlobalVertexLocation = (FVector(InVertexLocation2D.X, InVertexLocation2D.Y, 0.0f) + FVector(GetActorLocation()));
+	{	
+		const FVector GlobalVertexLocation = 
+			FVector(InVertexLocation2D.X, InVertexLocation2D.Y, 0.0f) + GetActorLocation();
 
-		const FVector2D GlobalVertexLocation2D = FVector2D(GlobalVertexLocation.X, GlobalVertexLocation.Y);
+		const FVector2D GlobalVertexLocation2D = 
+			FVector2D(GlobalVertexLocation.X, GlobalVertexLocation.Y);
 
-		{
+		{	// Continentalness
 			const ENoiseTerrainType ContinentalnessTerrainTypeEnum = ENoiseTerrainType::Continentalness;
 
 			if (ProNoiseComponent->GetNoiseSettingsType(ContinentalnessTerrainTypeEnum).bApplyNoise)
 			{
-				const float ContinentalnessNoiseValue = ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ContinentalnessTerrainTypeEnum);
+				const float ContinentalnessNoiseValue = 
+					ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ContinentalnessTerrainTypeEnum);
 
-				const float ContinentalnessHeightValue = ProNoiseComponent->GetWorldHeightValueFromNoise(ContinentalnessNoiseValue, ContinentalnessTerrainTypeEnum);
+				const float ContinentalnessHeightValue = 
+					ProNoiseComponent->GetWorldHeightValueFromNoise(ContinentalnessNoiseValue, ContinentalnessTerrainTypeEnum);
 
 				HeightValue += ContinentalnessHeightValue;
 
@@ -97,14 +100,16 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 			}
 		}
 
-		{
+		{	// Erosion
 			const ENoiseTerrainType ErrosionTerrainTypeEnum = ENoiseTerrainType::Erosion;
 
 			if (ProNoiseComponent->GetNoiseSettingsType(ErrosionTerrainTypeEnum).bApplyNoise)
 			{
-				const float ErosionNoiseValue = ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ErrosionTerrainTypeEnum);
+				const float ErosionNoiseValue = 
+					ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ErrosionTerrainTypeEnum);
 
-				const float ErosionHeightValue = ProNoiseComponent->GetWorldHeightValueFromNoise(ErosionNoiseValue, ErrosionTerrainTypeEnum);
+				const float ErosionHeightValue = 
+					ProNoiseComponent->GetWorldHeightValueFromNoise(ErosionNoiseValue, ErrosionTerrainTypeEnum);
 
 				HeightValue += ErosionHeightValue;
 
@@ -112,14 +117,16 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 			}
 		}
 
-		{
+		{	// PeaksAndValleys
 			const ENoiseTerrainType PeaksAndValleysTerrainTypeEnum = ENoiseTerrainType::PeaksAndValleys;
 
 			if (ProNoiseComponent->GetNoiseSettingsType(PeaksAndValleysTerrainTypeEnum).bApplyNoise)
 			{
-				const float PeaksAndValleysNoiseValue = ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, PeaksAndValleysTerrainTypeEnum);
+				const float PeaksAndValleysNoiseValue = 
+					ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, PeaksAndValleysTerrainTypeEnum);
 
-				const float PeaksAndValleysHeightValue = ProNoiseComponent->GetWorldHeightValueFromNoise(PeaksAndValleysNoiseValue, PeaksAndValleysTerrainTypeEnum);
+				const float PeaksAndValleysHeightValue = 
+					ProNoiseComponent->GetWorldHeightValueFromNoise(PeaksAndValleysNoiseValue, PeaksAndValleysTerrainTypeEnum);
 
 				HeightValue += PeaksAndValleysHeightValue;
 

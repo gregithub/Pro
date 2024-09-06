@@ -19,12 +19,15 @@ struct FGeneratedWorldLandscapeSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro) 
 	bool bUseRadiusFromPlayer = false;
 
+	// Chunks number on each axis.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 Global_MapSize = 40;
 
+	// Chunk size.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	float Global_ChunkSize = 1000.0f;
 
+	// Number of vertices on each of chunks axis.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pro)
 	int32 ChunkVerticesPerAxis = 3;
 
@@ -58,7 +61,9 @@ public:
 	void ClearAllChunks();
 
 	FVector GetCurrentCenterPosition() const;
-	
+
+	FIntVector2 GetPlayerPositionInt2D() const;
+
 	const FGeneratedWorldLandscapeSettings& GetLandscapeSettings() const { return LandscapeSettings; };
 
 protected:

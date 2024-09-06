@@ -23,10 +23,6 @@ void AProGameModeBase::InitGame(const FString& MapName, const FString& Options, 
 void AProGameModeBase::InitGameState()
 {
 	Super::InitGameState();
-
-	if (GameSession != nullptr)
-	{		
-	}
 }
 
 AProGameModeBase* AProGameModeBase::GetInstance(const UObject* const WorldContextObject)

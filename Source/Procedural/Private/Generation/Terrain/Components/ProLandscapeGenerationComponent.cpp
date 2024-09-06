@@ -37,12 +37,13 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 	{
 		FVector2D PlayerLocation2D = FVector2D(PlayerCharacter->GetActorLocation());
 
-		CurrentCoordinates = FIntVector2((PlayerLocation2D.X / CurrentLandscapeSettings.Global_ChunkSize), (PlayerLocation2D.Y / CurrentLandscapeSettings.Global_ChunkSize));
+		CurrentCoordinates = FIntVector2((PlayerLocation2D.X / CurrentLandscapeSettings.Global_ChunkSize),
+										(PlayerLocation2D.Y / CurrentLandscapeSettings.Global_ChunkSize));
 	}
 
 	if ((LastCoordinates.IsSet()) && (LastCoordinates.GetValue() == CurrentCoordinates))
 	{
-		//Position didn't change, no need for update.
+		//Position didn't change, no need for an update.
 		return;
 	}
 
@@ -50,41 +51,47 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 
 	OnCoordinatesChanged.Broadcast(this);
 
-	const int32 FirstChunkLocationX = (CurrentCoordinates.X - (CurrentLandscapeSettings.Global_MapSize / 2));
-	const int32 FirstChunkLocationY = (CurrentCoordinates.Y - (CurrentLandscapeSettings.Global_MapSize / 2));
+	const float LocalCurrentGlobalMapSize = CurrentLandscapeSettings.Global_MapSize;
+	const float LocalCurrentGlobalMapSizeHalved = (LocalCurrentGlobalMapSize / 2);
+
+	const int32 FirstChunkLocationX = (CurrentCoordinates.X - LocalCurrentGlobalMapSizeHalved);
+	const int32 FirstChunkLocationY = (CurrentCoordinates.Y - LocalCurrentGlobalMapSizeHalved);
 
 	TArray<FIntVector2> ChunksKeysToRemove;
 	CurrentChunks.GetKeys(ChunksKeysToRemove);
-
-	const float RadiusFromPlayer = (CurrentLandscapeSettings.Global_MapSize / 2);
 
 	int32 NumOfCreatedChunksThisTick = 0;
 	TOptional<float> MinNoiseValue;
 	TOptional<float> MaxNoiseValue;
 
-	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + CurrentLandscapeSettings.Global_MapSize); CurrentRow++)
+	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + LocalCurrentGlobalMapSize); CurrentRow++)
 	{
-		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + CurrentLandscapeSettings.Global_MapSize); CurrentColumn++)
+		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + LocalCurrentGlobalMapSize); CurrentColumn++)
 		{
+			const FIntVector2 CurrentChunkCoordinates = FIntVector2(CurrentRow, CurrentColumn);
+
 			if (CurrentLandscapeSettings.bUseRadiusFromPlayer)
 			{
-				if (FVector2D::Distance(FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y), FVector2D(CurrentRow, CurrentColumn)) > RadiusFromPlayer)
+				const FVector2D PlayerCoordinatesVector2D = FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y);
+				const FVector2D CurrentChunkCoordinatesVector2D = FVector2D(CurrentRow, CurrentColumn);
+
+				if (FVector2D::Distance(PlayerCoordinatesVector2D, CurrentChunkCoordinatesVector2D) > LocalCurrentGlobalMapSizeHalved)
 				{
 					continue;
 				}
 			}
 			
-			const FIntVector2 CurrentChunkCoordinates = FIntVector2(CurrentRow, CurrentColumn);
-
 			if (ChunksKeysToRemove.Contains(CurrentChunkCoordinates))
 			{
-				ChunksKeysToRemove.Remove(CurrentChunkCoordinates);
+				ChunksKeysToRemove.Remove(CurrentChunkCoordinates); //Remove current chunk from array of chunks that should be removed
 				continue;
 			}
 
-			const FVector ChunkLocation = FVector(float(CurrentRow * CurrentLandscapeSettings.Global_ChunkSize), float(CurrentColumn * CurrentLandscapeSettings.Global_ChunkSize), 0.0f);
+			const FVector ChunkWorldLocation =	FVector	(float(CurrentRow * CurrentLandscapeSettings.Global_ChunkSize), 
+													float(CurrentColumn * CurrentLandscapeSettings.Global_ChunkSize),
+													0.0f);
 
-			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkLocation))
+			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkWorldLocation))
 			{
 				if (bDebugNoiseValues)
 				{
@@ -108,6 +115,10 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 				}
 				
 				CurrentChunks.Add(CurrentChunkCoordinates, CreatedChunk);
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("RequestChunk failed!"));
 			}
 		}
 	}

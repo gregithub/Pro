@@ -104,7 +104,6 @@ float UProNoiseComponent::ProPerlinNoise2D(const FVector2D& Location) const
 
 float UProNoiseComponent::Grad2(int32 Hash, float X, float Y) const
 {
-	// corners and major axes (similar to the z=0 projection of the cube-edge-midpoint sampling from improved Perlin noise)
 	switch (Hash & 7)
 	{
 	case 0: return X;
