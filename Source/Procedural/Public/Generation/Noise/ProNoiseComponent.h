@@ -59,7 +59,7 @@ public:
 struct FProNoiseOffsets
 {
 	FProNoiseOffsets(FRandomStream& RandomStream)
-		: X(RandomStream.VRand()* RandomOffsetScale), Y(RandomStream.VRand()* RandomOffsetScale), Z(RandomStream.VRand()* RandomOffsetScale)
+		: X(RandomStream.VRand()* RandomOffsetScale)
 	{
 		bInitialized = true;
 	}
@@ -69,13 +69,11 @@ struct FProNoiseOffsets
 	void SetOffsets(FRandomStream& RandomStream)
 	{
 		X = RandomStream.VRand() * RandomOffsetScale;
-		Y = RandomStream.VRand() * RandomOffsetScale;
-		Z = RandomStream.VRand() * RandomOffsetScale;
 	}
 
 	bool IsInitalized() const { return bInitialized; };
 
-	FVector X, Y, Z;
+	FVector X;
 
 private:
 	// Offset scale chosen to keep reasonably small offsets while still de-correlating the noise in each dimension.
