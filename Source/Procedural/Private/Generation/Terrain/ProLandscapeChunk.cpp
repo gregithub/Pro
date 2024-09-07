@@ -51,12 +51,14 @@ void AProLandscapeChunk::RequestCreateMeshSection(const FGeneratedWorldLandscape
 		}
 	}
 
-	/*FVector2D QuadCenter = FVector2D(((float)j + 0.5) / ((float)NumX), ((float)i + 0.5) / ((float)NumY));
-	UV1s.Add(QuadCenter);
-	UV1s.Add(QuadCenter);
-	UV1s.Add(QuadCenter);
-	UV1s.Add(QuadCenter);*/
-
+	{
+		/*FVector2D QuadCenter = FVector2D(((float)j + 0.5) / ((float)NumX), ((float)i + 0.5) / ((float)NumY));
+		UV1s.Add(QuadCenter);
+		UV1s.Add(QuadCenter);
+		UV1s.Add(QuadCenter);
+		UV1s.Add(QuadCenter);*/
+	}
+	
 	UKismetProceduralMeshLibrary::CreateGridMeshTriangles(InSettings.ChunkVerticesPerAxis, InSettings.ChunkVerticesPerAxis, false, Triangles);
 	UKismetProceduralMeshLibrary::CalculateTangentsForMesh(Vertices, Triangles, UVs, Normals, Tangents);
 	
@@ -89,7 +91,7 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 			if (ProNoiseComponent->GetNoiseSettingsType(ContinentalnessTerrainTypeEnum).bApplyNoise)
 			{
 				const float ContinentalnessNoiseValue = 
-					ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ContinentalnessTerrainTypeEnum);
+					ProNoiseComponent->OctaveNoise2D(GlobalVertexLocation2D, ContinentalnessTerrainTypeEnum);
 
 				const float ContinentalnessHeightValue = 
 					ProNoiseComponent->GetWorldHeightValueFromNoise(ContinentalnessNoiseValue, ContinentalnessTerrainTypeEnum);
@@ -101,15 +103,15 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 		}
 
 		{	// Erosion
-			const ENoiseTerrainType ErrosionTerrainTypeEnum = ENoiseTerrainType::Erosion;
+			const ENoiseTerrainType ErosionTerrainTypeEnum = ENoiseTerrainType::Erosion;
 
-			if (ProNoiseComponent->GetNoiseSettingsType(ErrosionTerrainTypeEnum).bApplyNoise)
+			if (ProNoiseComponent->GetNoiseSettingsType(ErosionTerrainTypeEnum).bApplyNoise)
 			{
 				const float ErosionNoiseValue = 
-					ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, ErrosionTerrainTypeEnum);
+					ProNoiseComponent->OctaveNoise2D(GlobalVertexLocation2D, ErosionTerrainTypeEnum);
 
 				const float ErosionHeightValue = 
-					ProNoiseComponent->GetWorldHeightValueFromNoise(ErosionNoiseValue, ErrosionTerrainTypeEnum);
+					ProNoiseComponent->GetWorldHeightValueFromNoise(ErosionNoiseValue, ErosionTerrainTypeEnum);
 
 				HeightValue += ErosionHeightValue;
 
@@ -123,7 +125,7 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 			if (ProNoiseComponent->GetNoiseSettingsType(PeaksAndValleysTerrainTypeEnum).bApplyNoise)
 			{
 				const float PeaksAndValleysNoiseValue = 
-					ProNoiseComponent->GetNoiseTerrainTypeValue(GlobalVertexLocation2D, PeaksAndValleysTerrainTypeEnum);
+					ProNoiseComponent->OctaveNoise2D(GlobalVertexLocation2D, PeaksAndValleysTerrainTypeEnum);
 
 				const float PeaksAndValleysHeightValue = 
 					ProNoiseComponent->GetWorldHeightValueFromNoise(PeaksAndValleysNoiseValue, PeaksAndValleysTerrainTypeEnum);

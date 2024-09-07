@@ -23,58 +23,65 @@ void UProNoiseComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	NoiseSettings_Continentalness.GenerateOffsets(2);
-	NoiseSettings_Erosion.GenerateOffsets(3);
-	NoiseSettings_PeaksAndValleys.GenerateOffsets(4);
+	UpdateOffsets();
 }
 
-float UProNoiseComponent::GetNoiseTerrainTypeValue(const FVector2D& InLocation, const ENoiseTerrainType InNoiseTerrainType)
-{
-	const FProNoiseSettings& NoiseTypeSettings = GetNoiseSettingsType(InNoiseTerrainType);
-
-	if (NoiseTypeSettings.IsValid())
-	{
-		return CalcNoise2D(InLocation, NoiseTypeSettings);
-	}
-
-	return 0.0f;
-}
-
-float UProNoiseComponent::CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const
-{
-	float NoiseValue = 0.0f; 
-
-	if (InNoiseSettings.IsValid() == false)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("NoiseSettings is invalid!"));
-		return NoiseValue;
-	}
-
-	return OctaveNoise2D(InLocation, InNoiseSettings);
-}
-
-float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const FProNoiseSettings& InNoiseSettings) const
+float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const ENoiseTerrainType InNoiseTerrainType) const
 {
 	float NoiseValue = 0.0f;
 
-	if (InNoiseSettings.IsValid() == false)
+	const FProNoiseSettings& NoiseTypeSettings = GetNoiseSettingsType(InNoiseTerrainType);
+
+	if (NoiseTypeSettings.IsValid() == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("NoiseSettings is invalid!"));
+		UE_LOG(LogTemp, Warning, TEXT("NoiseTypeSettings is invalid!"));
 		return NoiseValue;
 	}
 
-	float LocalFrequency = InNoiseSettings.Frequency;
-	float LocalAmplitude = InNoiseSettings.Amplitude;
+	float LocalFrequency = NoiseTypeSettings.Frequency;
+	float LocalAmplitude = NoiseTypeSettings.Amplitude;
 
-	for (int32 Octave = 0; Octave < InNoiseSettings.Octaves; Octave++)
+	const FVector2D OffsetedPosition = Pos + FVector2D(NoiseTypeSettings.NoiseOffsets.X.X, NoiseTypeSettings.NoiseOffsets.X.Y);
+
+	for (int32 Octave = 0; Octave < NoiseTypeSettings.Octaves; Octave++)
 	{
-		NoiseValue += ProPerlinNoise2D(Pos  * LocalFrequency) * LocalAmplitude;
+		NoiseValue += FMath::PerlinNoise2D(OffsetedPosition * LocalFrequency) * LocalAmplitude;
 
-		LocalAmplitude *= InNoiseSettings.Persistence;
+		LocalAmplitude *= NoiseTypeSettings.Persistence;
 		LocalFrequency *= 2;
 	}
 
 	return FMath::Clamp(NoiseValue, -1.0f, 1.0f);
+}
+
+void UProNoiseComponent::UpdateOffsets()
+{
+	if (NoiseSettings_Continentalness.bGenerateRandomOffsets)
+	{
+		NoiseSettings_Continentalness.GenerateOffsets(FMath::Rand());
+	}
+	else
+	{
+		NoiseSettings_Continentalness.GenerateOffsets(NoiseSettings_Continentalness.OffsetsSeed);
+	}
+
+	if (NoiseSettings_Erosion.bGenerateRandomOffsets)
+	{
+		NoiseSettings_Erosion.GenerateOffsets(FMath::Rand());
+	}
+	else
+	{
+		NoiseSettings_Erosion.GenerateOffsets(NoiseSettings_Erosion.OffsetsSeed);
+	}
+
+	if (NoiseSettings_PeaksAndValleys.bGenerateRandomOffsets)
+	{
+		NoiseSettings_PeaksAndValleys.GenerateOffsets(FMath::Rand());
+	}
+	else
+	{
+		NoiseSettings_PeaksAndValleys.GenerateOffsets(NoiseSettings_PeaksAndValleys.OffsetsSeed);
+	}
 }
 
 float UProNoiseComponent::ProPerlinNoise2D(const FVector2D& Location) const

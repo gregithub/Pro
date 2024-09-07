@@ -79,7 +79,7 @@ struct FProNoiseOffsets
 
 private:
 	// Offset scale chosen to keep reasonably small offsets while still de-correlating the noise in each dimension.
-	static constexpr double RandomOffsetScale = 100.0;
+	static constexpr double RandomOffsetScale = 10000.0f;
 	bool bInitialized = false;
 
 };
@@ -105,6 +105,12 @@ struct FProNoiseSettings
 	float Persistence = 0.5f;
 
 	FProNoiseOffsets NoiseOffsets;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pro|Noise")
+	bool bGenerateRandomOffsets = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pro|Noise")
+	int32 OffsetsSeed = 1;
 
 public:
 	void GenerateOffsets(const int32 InSeed)
@@ -143,7 +149,9 @@ public:
 	UProNoiseComponent();
 	void BeginPlay() override;
 
-	float GetNoiseTerrainTypeValue(const FVector2D& InLocation, const ENoiseTerrainType InNoiseTerrainType);
+	float OctaveNoise2D(const FVector2D& Pos, const ENoiseTerrainType InNoiseTerrainType) const;
+
+	void UpdateOffsets();
 
 	const UNoiseCurveSettings* GetNoiseCurveSettings() const { return NoiseCurveSettings; };
 
@@ -156,10 +164,6 @@ public:
 	const FProNoiseSettings& GetNoiseSettings_PeaksAndValleys() const { return NoiseSettings_PeaksAndValleys; };
 
 protected:
-	float CalcNoise2D(const FVector2D& InLocation, const FProNoiseSettings& InNoiseSettings) const;
-
-	float OctaveNoise2D(const FVector2D& Pos, const FProNoiseSettings& InNoiseSettings) const;
-
 	float ProPerlinNoise2D(const FVector2D& Location) const;
 
 	float Fade(const float InValue) const;

@@ -40,6 +40,11 @@ void AProGameModeBase::RequestRecalculateTerrain()
 {
 	if (ProLandscapeGenerationComponent != nullptr)
 	{
+		if (ProNoiseComponent != nullptr)
+		{
+			ProNoiseComponent->UpdateOffsets();
+		}
+		
 		ProLandscapeGenerationComponent->ClearAllChunks();
 
 		if (ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
