@@ -108,10 +108,12 @@ float AProLandscapeChunk::CalculateHeight(const FVector2D& InVertexLocation2D)
 			if (ProNoiseComponent->GetNoiseSettingsType(ErosionTerrainTypeEnum).bApplyNoise)
 			{
 				const float ErosionNoiseValue = 
-					ProNoiseComponent->OctaveNoise2D(GlobalVertexLocation2D, ErosionTerrainTypeEnum);
+					ProNoiseComponent->
+					OctaveNoise2D(GlobalVertexLocation2D, ErosionTerrainTypeEnum);
 
 				const float ErosionHeightValue = 
-					ProNoiseComponent->GetWorldHeightValueFromNoise(ErosionNoiseValue, ErosionTerrainTypeEnum);
+					ProNoiseComponent->
+					GetWorldHeightValueFromNoise(ErosionNoiseValue, ErosionTerrainTypeEnum);
 
 				HeightValue += ErosionHeightValue;
 

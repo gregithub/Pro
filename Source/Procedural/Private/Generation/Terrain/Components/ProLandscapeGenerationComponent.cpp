@@ -64,18 +64,26 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 	TOptional<float> MinNoiseValue;
 	TOptional<float> MaxNoiseValue;
 
-	for (int32 CurrentRow = FirstChunkLocationX; CurrentRow <= (FirstChunkLocationX + LocalCurrentGlobalMapSize); CurrentRow++)
+	for (int32 CurrentRow = FirstChunkLocationX; 
+		CurrentRow <= (FirstChunkLocationX + LocalCurrentGlobalMapSize); 
+		CurrentRow++)
 	{
-		for (int32 CurrentColumn = FirstChunkLocationY; CurrentColumn <= (FirstChunkLocationY + LocalCurrentGlobalMapSize); CurrentColumn++)
+		for (int32 CurrentColumn = FirstChunkLocationY; 
+			CurrentColumn <= (FirstChunkLocationY + LocalCurrentGlobalMapSize); 
+			CurrentColumn++)
 		{
 			const FIntVector2 CurrentChunkCoordinates = FIntVector2(CurrentRow, CurrentColumn);
 
 			if (CurrentLandscapeSettings.bUseRadiusFromPlayer)
 			{
-				const FVector2D PlayerCoordinatesVector2D = FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y);
-				const FVector2D CurrentChunkCoordinatesVector2D = FVector2D(CurrentRow, CurrentColumn);
+				const FVector2D PlayerCoordinatesVector2D = 
+					FVector2D(CurrentCoordinates.X, CurrentCoordinates.Y);
+				
+				const FVector2D CurrentChunkCoordinatesVector2D = 
+					FVector2D(CurrentRow, CurrentColumn);
 
-				if (FVector2D::Distance(PlayerCoordinatesVector2D, CurrentChunkCoordinatesVector2D) > LocalCurrentGlobalMapSizeHalved)
+				if (FVector2D::Distance(PlayerCoordinatesVector2D, CurrentChunkCoordinatesVector2D) 
+					> LocalCurrentGlobalMapSizeHalved)
 				{
 					continue;
 				}
@@ -83,13 +91,15 @@ void UProLandscapeGenerationComponent::TickUpdateRequestedChunks()
 			
 			if (ChunksKeysToRemove.Contains(CurrentChunkCoordinates))
 			{
-				ChunksKeysToRemove.Remove(CurrentChunkCoordinates); //Remove current chunk from array of chunks that should be removed
+				//Remove current chunk from array of chunks that should be removed
+				ChunksKeysToRemove.Remove(CurrentChunkCoordinates); 
 				continue;
 			}
 
-			const FVector ChunkWorldLocation =	FVector	(float(CurrentRow * CurrentLandscapeSettings.Global_ChunkSize), 
-													float(CurrentColumn * CurrentLandscapeSettings.Global_ChunkSize),
-													0.0f);
+			const FVector ChunkWorldLocation =
+				  FVector (float(CurrentRow * CurrentLandscapeSettings.Global_ChunkSize), 
+						 float(CurrentColumn * CurrentLandscapeSettings.Global_ChunkSize),
+						 0.0f);
 
 			if (AProLandscapeChunk* CreatedChunk = RequestChunk(ChunkWorldLocation))
 			{

@@ -41,7 +41,8 @@ float UProNoiseComponent::OctaveNoise2D(const FVector2D& Pos, const ENoiseTerrai
 	float LocalFrequency = NoiseTypeSettings.Frequency;
 	float LocalAmplitude = NoiseTypeSettings.Amplitude;
 
-	const FVector2D OffsetedPosition = Pos + FVector2D(NoiseTypeSettings.NoiseOffsets.X.X, NoiseTypeSettings.NoiseOffsets.X.Y);
+	const FVector2D OffsetedPosition = 
+		Pos + FVector2D(NoiseTypeSettings.NoiseOffsets.X.X, NoiseTypeSettings.NoiseOffsets.X.Y);
 
 	for (int32 Octave = 0; Octave < NoiseTypeSettings.Octaves; Octave++)
 	{
